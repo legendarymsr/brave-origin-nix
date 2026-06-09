@@ -23,17 +23,13 @@ stdenv.mkDerivation rec {
     libxshmfence libXinerama mesa nspr nss pango systemd
   ];
 
-  unpackPhase = ''
-    dpkg-deb --fsys-tarfile $src | tar x --no-same-permissions
-    echo "=== opt/brave.com contents ==="
-    find opt/brave.com -maxdepth 2
-  '';
+  unpackPhase = "dpkg-deb --fsys-tarfile $src | tar x --no-same-permissions";
 
   installPhase = ''
     runHook preInstall
     mkdir -p $out/bin $out/libexec $out/share/applications $out/share/icons
     cp -r opt/brave.com/brave-nightly $out/libexec/
-    chmod +x $out/libexec/brave-nightly/brave-nightly
+    chmod +x $out/libexec/brave-nightly/brave-browser-nightly
     cp -r usr/share/applications/. $out/share/applications/ 2>/dev/null || true
     cp -r usr/share/icons/.        $out/share/icons/        2>/dev/null || true
     for f in $out/share/applications/*.desktop; do
@@ -41,7 +37,7 @@ stdenv.mkDerivation rec {
         --replace-quiet "/usr/bin/brave-browser-nightly" "$out/bin/brave-origin" \
         --replace-quiet "brave-browser-nightly" "brave-origin" || true
     done
-    makeWrapper $out/libexec/brave-nightly/brave-nightly $out/bin/brave-origin \
+    makeWrapper $out/libexec/brave-nightly/brave-browser-nightly $out/bin/brave-origin \
       --prefix XDG_DATA_DIRS : "$GSETTINGS_SCHEMAS_PATH" \
       --suffix PATH          : "${xdg-utils}/bin" \
       --add-flags "--ozone-platform-hint=auto --enable-features=WaylandWindowDecorations"
