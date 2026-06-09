@@ -29,6 +29,7 @@ stdenv.mkDerivation rec {
     runHook preInstall
     mkdir -p $out/bin $out/share/applications $out/share/icons
     cp -r opt/brave.com/brave-nightly $out/libexec
+    chmod -R +x $out/libexec/brave-nightly
     cp -r usr/share/applications/. $out/share/applications/ 2>/dev/null || true
     cp -r usr/share/icons/.        $out/share/icons/        2>/dev/null || true
     for f in $out/share/applications/*.desktop; do
