@@ -27,9 +27,9 @@ stdenv.mkDerivation rec {
 
   installPhase = ''
     runHook preInstall
-    mkdir -p $out/bin $out/share/applications $out/share/icons
-    cp -r opt/brave.com/brave-nightly $out/libexec
-    chmod -R +x $out/libexec/brave-nightly
+    mkdir -p $out/bin $out/libexec $out/share/applications $out/share/icons
+    cp -r opt/brave.com/brave-nightly $out/libexec/
+    chmod +x $out/libexec/brave-nightly/brave-nightly
     cp -r usr/share/applications/. $out/share/applications/ 2>/dev/null || true
     cp -r usr/share/icons/.        $out/share/icons/        2>/dev/null || true
     for f in $out/share/applications/*.desktop; do
