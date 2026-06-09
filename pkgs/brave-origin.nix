@@ -28,13 +28,15 @@ stdenv.mkDerivation rec {
   installPhase = ''
     runHook preInstall
     mkdir -p $out/bin $out/share/applications $out/share/icons
-    cp -r opt/brave.com/brave-browser* $out/libexec
+    cp -r opt/brave.com/brave-nightly $out/libexec
     cp -r usr/share/applications/. $out/share/applications/ 2>/dev/null || true
     cp -r usr/share/icons/.        $out/share/icons/        2>/dev/null || true
-    substituteInPlace $out/share/applications/brave-browser-nightly.desktop \
-      --replace-quiet "/usr/bin/brave-browser-nightly" "$out/bin/brave-origin" \
-      --replace-quiet "brave-browser-nightly" "brave-origin"
-    makeWrapper $out/libexec/brave-browser-nightly $out/bin/brave-origin \
+    for f in $out/share/applications/*.desktop; do
+      substituteInPlace $f \
+        --replace-quiet "/usr/bin/brave-browser-nightly" "$out/bin/brave-origin" \
+        --replace-quiet "brave-browser-nightly" "brave-origin" || true
+    done
+    makeWrapper $out/libexec/brave-nightly $out/bin/brave-origin \
       --prefix XDG_DATA_DIRS : "$GSETTINGS_SCHEMAS_PATH" \
       --suffix PATH          : "${xdg-utils}/bin" \
       --add-flags "--ozone-platform-hint=auto --enable-features=WaylandWindowDecorations"
