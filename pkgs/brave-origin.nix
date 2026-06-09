@@ -23,6 +23,8 @@ stdenv.mkDerivation rec {
     libxshmfence libXinerama mesa nspr nss pango systemd
   ];
 
+  autoPatchelfIgnoreMissingDeps = true;
+
   unpackPhase = "dpkg-deb --fsys-tarfile $src | tar x --no-same-permissions";
 
   installPhase = ''
