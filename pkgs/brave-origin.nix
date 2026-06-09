@@ -23,7 +23,11 @@ stdenv.mkDerivation rec {
     libxshmfence libXinerama mesa nspr nss pango systemd
   ];
 
-  unpackPhase = "dpkg-deb --fsys-tarfile $src | tar x --no-same-permissions";
+  unpackPhase = ''
+    dpkg-deb --fsys-tarfile $src | tar x --no-same-permissions
+    echo "=== opt/brave.com contents ==="
+    find opt/brave.com -maxdepth 2
+  '';
 
   installPhase = ''
     runHook preInstall
