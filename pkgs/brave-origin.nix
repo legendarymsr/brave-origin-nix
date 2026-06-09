@@ -36,7 +36,7 @@ stdenv.mkDerivation rec {
         --replace-quiet "/usr/bin/brave-browser-nightly" "$out/bin/brave-origin" \
         --replace-quiet "brave-browser-nightly" "brave-origin" || true
     done
-    makeWrapper $out/libexec/brave-nightly $out/bin/brave-origin \
+    makeWrapper $out/libexec/brave-nightly/brave-nightly $out/bin/brave-origin \
       --prefix XDG_DATA_DIRS : "$GSETTINGS_SCHEMAS_PATH" \
       --suffix PATH          : "${xdg-utils}/bin" \
       --add-flags "--ozone-platform-hint=auto --enable-features=WaylandWindowDecorations"
