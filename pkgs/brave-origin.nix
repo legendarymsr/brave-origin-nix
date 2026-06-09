@@ -1,6 +1,6 @@
 { lib, stdenv, fetchurl, dpkg, autoPatchelfHook, makeWrapper, wrapGAppsHook3,
   alsa-lib, at-spi2-atk, cairo, cups, dbus, expat, fontconfig, gdk-pixbuf,
-  glib, gtk3, libX11, libXScrnSaver, libXcb, libXcomposite, libXcursor,
+  glib, gtk3, libX11, libXScrnSaver, libxcb, libXcomposite, libXcursor,
   libXdamage, libXext, libXfixes, libXi, libXrandr, libXrender, libXtst,
   libdrm, libgbm, libuuid, mesa, nspr, nss, pango, systemd, xdg-utils, xorg }:
 
@@ -17,7 +17,7 @@ stdenv.mkDerivation rec {
 
   buildInputs = [
     alsa-lib at-spi2-atk cairo cups dbus expat fontconfig gdk-pixbuf glib gtk3
-    libX11 libXScrnSaver libXcb libXcomposite libXcursor libXdamage libXext
+    libX11 libXScrnSaver libxcb libXcomposite libXcursor libXdamage libXext
     libXfixes libXi libXrandr libXrender libXtst libdrm libgbm libuuid mesa
     nspr nss pango systemd xorg.libxshmfence xorg.libXinerama
   ];
