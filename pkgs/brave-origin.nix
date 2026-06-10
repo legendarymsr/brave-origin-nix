@@ -38,6 +38,7 @@ stdenv.mkDerivation rec {
       substituteInPlace $f \
         --replace-quiet "/usr/bin/brave-browser-nightly" "$out/bin/brave-origin" \
         --replace-quiet "brave-browser-nightly" "brave-origin" || true
+      mv "$f" "$out/share/applications/brave-origin.desktop"
     done
     makeWrapper $out/libexec/brave-nightly/brave-browser-nightly $out/bin/brave-origin \
       --prefix XDG_DATA_DIRS : "$GSETTINGS_SCHEMAS_PATH" \
