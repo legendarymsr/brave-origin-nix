@@ -46,14 +46,18 @@ stdenv.mkDerivation rec {
       mv "''${desktopFiles[0]}" "$out/share/applications/brave-origin.desktop"
     fi
 
-    install -m 755 ${./scripts/sandbox-wrapper.sh} $out/libexec/brave-nightly/sandbox-wrapper.sh
-    substituteInPlace $out/libexec/brave-nightly/sandbox-wrapper.sh \
-      --replace-quiet "@out@" "$out"
-
     makeWrapper $out/libexec/brave-nightly/brave-browser-nightly $out/bin/brave-origin \
       --prefix XDG_DATA_DIRS : "$GSETTINGS_SCHEMAS_PATH" \
       --suffix PATH          : "${xdg-utils}/bin" \
-      --run "source $out/libexec/brave-nightly/sandbox-wrapper.sh" \
+      --run 'if [ ! -x /run/wrappers/bin/chrome-sandbox ]; then' \
+      --run "  sudo -n install -D -m 4755 -o root -g root \"$out/libexec/brave-nightly/chrome-sandbox\" /run/wrappers/bin/chrome-sandbox 2>/dev/null || true" \
+      --run 'fi' \
+      --run 'if [ -x /run/wrappers/bin/chrome-sandbox ]; then' \
+      --run '  export CHROME_DEVEL_SANDBOX=/run/wrappers/bin/chrome-sandbox' \
+      --run '  SANDBOX_FLAG=""' \
+      --run 'else' \
+      --run '  SANDBOX_FLAG="--no-sandbox"' \
+      --run 'fi' \
       --add-flags "--ozone-platform-hint=auto --enable-features=WaylandWindowDecorations \$SANDBOX_FLAG"
     runHook postInstall
   '';
