@@ -4,7 +4,7 @@ Brave Origin (nightly) browser packaged as a Nix flake.
 
 ## Run without installing
 ```
-nix run github:legendarymsr/brave-origin-nix
+sudo nix run github:legendarymsr/brave-origin-nix --no-write-lock-file --refresh
 ```
 
 ## home-manager
