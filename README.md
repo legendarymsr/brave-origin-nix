@@ -8,10 +8,18 @@ sudo nix run github:legendarymsr/brave-origin-nix --no-write-lock-file --refresh
 ```
 
 ## home-manager
+In your flake inputs:
 ```nix
 inputs.brave-origin.url = "github:legendarymsr/brave-origin-nix";
+```
+
+In your home-manager configuration:
+```nix
 imports = [ inputs.brave-origin.homeManagerModules.brave-origin ];
-programs.brave-origin.enable = true;
+programs.brave-origin = {
+  enable = true;
+  defaultBrowser = true; # optional, sets brave-origin as the default browser
+};
 ```
 
 ## NixOS
