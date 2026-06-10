@@ -43,7 +43,7 @@ stdenv.mkDerivation rec {
       --prefix XDG_DATA_DIRS : "$GSETTINGS_SCHEMAS_PATH" \
       --suffix PATH          : "${xdg-utils}/bin" \
       --run 'if [ -x /run/wrappers/bin/chrome-sandbox ]; then export CHROME_DEVEL_SANDBOX=/run/wrappers/bin/chrome-sandbox; SANDBOX_FLAG=""; else SANDBOX_FLAG="--no-sandbox"; fi' \
-      --add-flags '--ozone-platform-hint=auto --enable-features=WaylandWindowDecorations $SANDBOX_FLAG'
+      --add-flags "--ozone-platform-hint=auto --enable-features=WaylandWindowDecorations \$SANDBOX_FLAG"
     runHook postInstall
   '';
 
