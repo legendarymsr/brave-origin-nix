@@ -33,9 +33,17 @@ programs.brave-origin.enable = true;
 
 The Chromium sandbox needs `chrome-sandbox` to run as setuid root, which the
 Nix store does not allow. The NixOS module sets this up automatically via
-`security.wrappers.chrome-sandbox`, so the browser runs fully sandboxed when
-installed through `nixosModules.brave-origin`.
+`security.wrappers.chrome-sandbox`.
 
-If run standalone via `nix run github:legendarymsr/brave-origin-nix` (without
-the NixOS module), the wrapper at `/run/wrappers/bin/chrome-sandbox` won't
-exist, and the browser falls back to `--no-sandbox`.
+When run standalone via `nix run`, brave-origin will try to set up
+`/run/wrappers/bin/chrome-sandbox` itself using `sudo -n` (non-interactive,
+only works if you have cached sudo credentials). If that's not available, it
+falls back to `--no-sandbox`.
+
+To set it up manually once (recommended for standalone use):
+```
+sudo install -D -m 4755 -o root -g root \
+  "$(nix build github:legendarymsr/brave-origin-nix --no-link --print-out-paths)/libexec/brave-nightly/chrome-sandbox" \
+  /run/wrappers/bin/chrome-sandbox
+```
+After that, every `nix run` will use the proper sandbox automatically.
