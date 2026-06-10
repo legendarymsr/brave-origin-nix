@@ -42,8 +42,12 @@ stdenv.mkDerivation rec {
     makeWrapper $out/libexec/brave-nightly/brave-browser-nightly $out/bin/brave-origin \
       --prefix XDG_DATA_DIRS : "$GSETTINGS_SCHEMAS_PATH" \
       --suffix PATH          : "${xdg-utils}/bin" \
-      --add-flags "--ozone-platform-hint=auto --enable-features=WaylandWindowDecorations --no-sandbox"
+      --add-flags "--ozone-platform-hint=auto --enable-features=WaylandWindowDecorations"
     runHook postInstall
+  '';
+
+  postInstall = ''
+    chmod 4755 $out/libexec/brave-nightly/chrome-sandbox
   '';
 
   meta = with lib; {
