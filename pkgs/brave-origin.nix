@@ -46,13 +46,14 @@ stdenv.mkDerivation rec {
       mv "''${desktopFiles[0]}" "$out/share/applications/brave-origin.desktop"
     fi
 
-    cp ${./sandbox-wrapper.sh} $out/libexec/sandbox-wrapper.sh
-    substituteInPlace $out/libexec/sandbox-wrapper.sh --replace-quiet "@out@" "$out"
+    install -m 755 ${./scripts/sandbox-wrapper.sh} $out/libexec/brave-nightly/sandbox-wrapper.sh
+    substituteInPlace $out/libexec/brave-nightly/sandbox-wrapper.sh \
+      --replace-quiet "@out@" "$out"
 
     makeWrapper $out/libexec/brave-nightly/brave-browser-nightly $out/bin/brave-origin \
       --prefix XDG_DATA_DIRS : "$GSETTINGS_SCHEMAS_PATH" \
       --suffix PATH          : "${xdg-utils}/bin" \
-      --run "source $out/libexec/sandbox-wrapper.sh" \
+      --run "source $out/libexec/brave-nightly/sandbox-wrapper.sh" \
       --add-flags "--ozone-platform-hint=auto --enable-features=WaylandWindowDecorations \$SANDBOX_FLAG"
     runHook postInstall
   '';
