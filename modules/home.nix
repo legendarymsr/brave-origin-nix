@@ -10,9 +10,9 @@ let cfg = config.programs.brave-origin; in {
     xdg.mimeApps = mkIf cfg.defaultBrowser {
       enable = true;
       defaultApplications = {
-        "text/html"               = "brave-browser-nightly.desktop";
-        "x-scheme-handler/http"  = "brave-browser-nightly.desktop";
-        "x-scheme-handler/https" = "brave-browser-nightly.desktop";
+        "text/html"               = "brave-origin.desktop";
+        "x-scheme-handler/http"  = "brave-origin.desktop";
+        "x-scheme-handler/https" = "brave-origin.desktop";
       };
     };
   };
