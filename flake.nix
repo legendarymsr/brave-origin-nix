@@ -1,9 +1,13 @@
 {
   description = "Brave Origin (nightly) browser — packaged for NixOS";
 
-  inputs.nixpkgs.url = "github:nixos/nixpkgs/nixos-unstable";
+  inputs = {
+    nixpkgs.url      = "github:nixos/nixpkgs/nixos-unstable";
+    nixvim.url       = "github:nix-community/nixvim";
+    nixvim.inputs.nixpkgs.follows = "nixpkgs";
+  };
 
-  outputs = { self, nixpkgs }:
+  outputs = { self, nixpkgs, nixvim }:
     let
       system = "x86_64-linux";
       pkgs   = nixpkgs.legacyPackages.${system};
@@ -16,7 +20,10 @@
       };
       nixosModules.brave-origin       = import ./modules/nixos.nix    { inherit brave-origin; };
       nixosModules.xfce               = import ./modules/xfce.nix;
-      homeManagerModules.brave-origin = import ./modules/home.nix    { inherit brave-origin; };
+      homeManagerModules.brave-origin = import ./modules/home.nix     { inherit brave-origin; };
       homeManagerModules.xfce         = import ./modules/xfce-home.nix;
+      homeManagerModules.nixvim       = {
+        imports = [ nixvim.homeManagerModules.nixvim ./modules/nixvim.nix ];
+      };
     };
 }
