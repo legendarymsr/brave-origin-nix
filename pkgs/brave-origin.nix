@@ -3,15 +3,15 @@
   glib, gtk3, libX11, libXScrnSaver, libxcb, libXcomposite, libXcursor,
   libXdamage, libXext, libXfixes, libXi, libXrandr, libXrender, libXtst,
   libdrm, libgbm, libuuid, libxshmfence, libXinerama, mesa, nspr, nss,
-  pango, systemd, xdg-utils, xorg }:
+  pango, systemd, xdg-utils }:
 
 stdenv.mkDerivation rec {
   pname   = "brave-origin";
-  version = "1.93.47";
+  version = "1.97.24";
 
   src = fetchurl {
     url  = "https://github.com/brave/brave-browser/releases/download/v${version}/brave-browser-nightly_${version}_amd64.deb";
-    hash = "sha256-oPQsPwc/lc6Cy1ggo2hOlf7VEccBemZl/UiXSq7LahY=";
+    hash = "sha256-N7wym8OffgjQj2qKC6Y1xM5Vc8i/ncz++LgAGVkF888=";
   };
 
   nativeBuildInputs = [ dpkg autoPatchelfHook makeWrapper wrapGAppsHook3 ];
