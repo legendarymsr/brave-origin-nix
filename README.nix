@@ -1,20 +1,24 @@
+# ─────────────────────────────────────────────────────────────────────────────
 # README.nix — brave-origin-nix
 #
 # Brave Origin (nightly) browser packaged as a Nix flake.
 # Yes, the README is a .nix file. Everything is a .nix file.
+# ─────────────────────────────────────────────────────────────────────────────
 {
-  # ── Updating ──────────────────────────────────────────────────────────────
+  # ── Updating ─────────────────────────────────────────────────────────────
   # Bump to the latest nightly. Patches pkgs/brave-origin.nix then commit and push.
   update = ''
     nix run .#update
   '';
 
-  # ── Run without installing ────────────────────────────────────────────────
+  # ─────────────────────────────────────────────────────────────────────────
+  # ── Run without installing ───────────────────────────────────────────────
   run = ''
     nix run github:legendarymsr/brave-origin-nix --no-write-lock-file --refresh
   '';
 
-  # ── home-manager ──────────────────────────────────────────────────────────
+  # ─────────────────────────────────────────────────────────────────────────
+  # ── home-manager ─────────────────────────────────────────────────────────
   homeManager = {
     # Add to flake inputs:
     input = ''
@@ -41,7 +45,8 @@
     };
   };
 
-  # ── NixOS ─────────────────────────────────────────────────────────────────
+  # ─────────────────────────────────────────────────────────────────────────
+  # ── NixOS ────────────────────────────────────────────────────────────────
   # Sets up the chrome-sandbox setuid wrapper automatically via security.wrappers.
   nixos = ''
     inputs.brave-origin.url = "github:legendarymsr/brave-origin-nix";
@@ -50,7 +55,8 @@
     programs.brave-origin.enable = true;
   '';
 
-  # ── XFCE ──────────────────────────────────────────────────────────────────
+  # ─────────────────────────────────────────────────────────────────────────
+  # ── XFCE ─────────────────────────────────────────────────────────────────
   # The point of this flake is Brave Origin. XFCE is here purely so you don't
   # have to mess with multiple flakes. Stock XFCE, stays out of the way.
   # If you already have a desktop just ignore this.
@@ -112,18 +118,18 @@
     '';
   };
 
+  # ─────────────────────────────────────────────────────────────────────────
   # ── Sandboxing ────────────────────────────────────────────────────────────
-  sandboxing = {
-    # NixOS module handles this automatically via security.wrappers.
-    # For standalone nix run, brave-origin tries sudo -n first, falls back to --no-sandbox.
-    # Manual one-time setup:
-    manualSetup = ''
-      sudo install -D -m 4755 -o root -g root \
-        "$(nix build github:legendarymsr/brave-origin-nix --no-link --print-out-paths)/libexec/brave-origin-nightly/chrome-sandbox" \
-        /run/wrappers/bin/chrome-sandbox
-    '';
-  };
+  # NixOS module handles this automatically via security.wrappers.
+  # Standalone nix run: tries sudo -n first, falls back to --no-sandbox.
+  # Manual one-time setup:
+  sandboxing.manualSetup = ''
+    sudo install -D -m 4755 -o root -g root \
+      "$(nix build github:legendarymsr/brave-origin-nix --no-link --print-out-paths)/libexec/brave-origin-nightly/chrome-sandbox" \
+      /run/wrappers/bin/chrome-sandbox
+  '';
 
+  # ─────────────────────────────────────────────────────────────────────────
   # ── Text editor ───────────────────────────────────────────────────────────
   # Minimal nixvim — no extra flake input needed, re-exported by this flake.
   textEditor = {
@@ -144,4 +150,5 @@
       "Enter"        = "confirm completion";
     };
   };
+  # ─────────────────────────────────────────────────────────────────────────
 }
