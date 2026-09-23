@@ -102,6 +102,7 @@ Keybindings included out of the box:
     nixpkgs.url      = "github:nixos/nixpkgs/nixos-unstable";
     home-manager.url = "github:nix-community/home-manager";
     brave-origin.url = "github:legendarymsr/brave-origin-nix";
+    # nixvim is re-exported by brave-origin — no extra input needed
   };
 
   outputs = { nixpkgs, home-manager, brave-origin, ... }: {
@@ -120,10 +121,12 @@ Keybindings included out of the box:
             imports = [
               brave-origin.homeManagerModules.brave-origin
               brave-origin.homeManagerModules.xfce
+              brave-origin.homeManagerModules.nixvim
             ];
             programs.brave-origin.enable        = true;
             programs.brave-origin.defaultBrowser = true;
             desktop.xfce.enable                 = true;
+            programs.nixvim-simple.enable       = true;
             home.stateVersion                   = "24.11";
           };
         }
