@@ -13,7 +13,8 @@
         brave-origin = brave-origin;
         default      = brave-origin;
       };
-      nixosModules.brave-origin       = import ./modules/nixos.nix { inherit brave-origin; };
-      homeManagerModules.brave-origin = import ./modules/home.nix  { inherit brave-origin; };
+      nixosModules.brave-origin        = import ./modules/nixos.nix    { inherit brave-origin; };
+      nixosModules.brave-origin-security = import ./modules/security.nix { inherit brave-origin; };
+      homeManagerModules.brave-origin  = import ./modules/home.nix     { inherit brave-origin; };
     };
 }
