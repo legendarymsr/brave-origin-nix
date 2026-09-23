@@ -154,3 +154,25 @@ sudo install -D -m 4755 -o root -g root \
   /run/wrappers/bin/chrome-sandbox
 ```
 After that, every `nix run` invocation will use the proper sandbox automatically.
+
+## Text editor
+
+The flake includes a nixvim module (`homeManagerModules.nixvim`) for anyone who
+wants an editor without adding another flake input. It's minimal on purpose:
+relative numbers, Nix LSP (`nixd`), completions, treesitter, telescope, and
+catppuccin mocha. Enable it with:
+
+```nix
+imports = [ inputs.brave-origin.homeManagerModules.nixvim ];
+programs.nixvim-simple.enable = true;
+```
+
+| Keybind | Action |
+|---|---|
+| `Space + ff` | Find files |
+| `Space + fg` | Live grep |
+| `Space + fb` | Buffers |
+| `Space + e` | File explorer (netrw) |
+| `Ctrl + h/j/k/l` | Navigate splits |
+| `Tab / Shift+Tab` | Cycle completions |
+| `Enter` | Confirm completion |
