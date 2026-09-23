@@ -75,7 +75,7 @@ to `--no-sandbox`.
 To set it up manually once (recommended for standalone use):
 ```
 sudo install -D -m 4755 -o root -g root \
-  "$(nix build github:legendarymsr/brave-origin-nix --no-link --print-out-paths)/libexec/brave-nightly/chrome-sandbox" \
+  "$(nix build github:legendarymsr/brave-origin-nix --no-link --print-out-paths)/libexec/brave-origin-nightly/chrome-sandbox" \
   /run/wrappers/bin/chrome-sandbox
 ```
 After that, every `nix run` invocation will use the proper sandbox automatically.

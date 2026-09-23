@@ -3,7 +3,7 @@
   config = mkIf config.programs.brave-origin.enable {
     environment.systemPackages = [ brave-origin ];
     security.wrappers.chrome-sandbox = {
-      source = "${brave-origin}/libexec/brave-nightly/chrome-sandbox";
+      source = "${brave-origin}/libexec/brave-origin-nightly/chrome-sandbox";
       owner  = "root";
       group  = "root";
       setuid = true;

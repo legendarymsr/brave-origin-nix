@@ -10,8 +10,8 @@ stdenv.mkDerivation rec {
   version = "1.97.24";
 
   src = fetchurl {
-    url  = "https://github.com/brave/brave-browser/releases/download/v${version}/brave-browser-nightly_${version}_amd64.deb";
-    hash = "sha256-N7wym8OffgjQj2qKC6Y1xM5Vc8i/ncz++LgAGVkF888=";
+    url  = "https://github.com/brave/brave-browser/releases/download/v${version}/brave-origin-nightly_${version}_amd64.deb";
+    hash = "sha256-A7hpK3dD5b22V/3gl67lp0snUkL7w10BV+WXCUH11+4=";
   };
 
   nativeBuildInputs = [ dpkg autoPatchelfHook makeWrapper wrapGAppsHook3 ];
@@ -30,8 +30,8 @@ stdenv.mkDerivation rec {
   installPhase = ''
     runHook preInstall
     mkdir -p $out/bin $out/libexec $out/share/applications $out/share/icons
-    cp -r opt/brave.com/brave-nightly $out/libexec/
-    chmod +x $out/libexec/brave-nightly/brave-browser-nightly
+    cp -r opt/brave.com/brave-origin-nightly $out/libexec/
+    chmod +x $out/libexec/brave-origin-nightly/brave-origin-nightly
     cp -r usr/share/applications/. $out/share/applications/ 2>/dev/null || true
     cp -r usr/share/icons/.        $out/share/icons/        2>/dev/null || true
 
@@ -39,20 +39,20 @@ stdenv.mkDerivation rec {
     desktopFiles=($out/share/applications/*.desktop)
     for f in "''${desktopFiles[@]}"; do
       substituteInPlace "$f" \
-        --replace-quiet "/usr/bin/brave-browser-nightly" "$out/bin/brave-origin" \
-        --replace-quiet "brave-browser-nightly" "brave-origin" || true
+        --replace-quiet "/usr/bin/brave-origin-nightly" "$out/bin/brave-origin" \
+        --replace-quiet "brave-origin-nightly" "brave-origin" || true
     done
     if [ "''${#desktopFiles[@]}" -eq 1 ]; then
       mv "''${desktopFiles[0]}" "$out/share/applications/brave-origin.desktop"
     fi
 
-    makeWrapper $out/libexec/brave-nightly/brave-browser-nightly $out/bin/brave-origin \
+    makeWrapper $out/libexec/brave-origin-nightly/brave-origin-nightly $out/bin/brave-origin \
       --prefix XDG_DATA_DIRS : "$GSETTINGS_SCHEMAS_PATH" \
       --suffix PATH          : "${xdg-utils}/bin" \
       --run ${lib.escapeShellArg ''
         if [ ! -x /run/wrappers/bin/chrome-sandbox ]; then
           sudo -n install -D -m 4755 -o root -g root \
-            "${placeholder "out"}/libexec/brave-nightly/chrome-sandbox" \
+            "${placeholder "out"}/libexec/brave-origin-nightly/chrome-sandbox" \
             /run/wrappers/bin/chrome-sandbox 2>/dev/null || true
         fi
         if [ -x /run/wrappers/bin/chrome-sandbox ]; then
@@ -67,8 +67,8 @@ stdenv.mkDerivation rec {
   '';
 
   meta = with lib; {
-    description      = "Brave browser — Origin (nightly) channel";
-    homepage         = "https://brave.com";
+    description      = "Brave Origin — nightly channel";
+    homepage         = "https://brave.com/origin/";
     license          = licenses.mpl20;
     platforms        = [ "x86_64-linux" ];
     mainProgram      = "brave-origin";
