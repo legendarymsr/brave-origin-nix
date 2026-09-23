@@ -12,6 +12,7 @@
       packages.${system} = {
         brave-origin = brave-origin;
         default      = brave-origin;
+        update       = pkgs.callPackage ./update.nix {};
       };
       nixosModules.brave-origin       = import ./modules/nixos.nix    { inherit brave-origin; };
       nixosModules.xfce               = import ./modules/xfce.nix;

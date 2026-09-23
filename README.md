@@ -2,6 +2,14 @@
 
 Brave Origin (nightly) browser packaged as a Nix flake.
 
+## Updating
+
+```
+nix run .#update
+```
+
+Finds the latest nightly, downloads it, recomputes the hash, and patches `pkgs/brave-origin.nix`. Then commit and push.
+
 ## Run without installing
 ```
 nix run github:legendarymsr/brave-origin-nix --no-write-lock-file --refresh
