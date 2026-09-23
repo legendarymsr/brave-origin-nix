@@ -79,10 +79,11 @@ Keybindings included out of the box:
 | `Super + T` | Terminal |
 | `Super + E` | File manager (Thunar) |
 | `Super + L` | Lock screen |
-| `Super + ←/→` | Tile window left/right |
-| `Super + ↑` | Maximise |
-| `Super + ↓` | Minimise |
+| `Super + H/L` | Tile window left/right |
+| `Super + K` | Maximise |
+| `Super + J` | Minimise |
 | `Super + Tab` | Cycle windows |
+| `Super + Shift + H/L` | Move window to prev/next workspace |
 | `Print` | Screenshot |
 
 **One flake, one `nixos-rebuild switch`:**

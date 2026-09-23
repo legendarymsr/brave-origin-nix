@@ -52,13 +52,13 @@ let cfg = config.desktop.xfce; in {
         "shortcuts/custom/Super+d"          = "xfdesktop --menu";
         "shortcuts/custom/Print"            = "xfce4-screenshooter";
         "shortcuts/custom/Alt+F4"           = "close_window_key";
-        "shortcuts/custom/Super+Left"       = "tile_left_key";
-        "shortcuts/custom/Super+Right"      = "tile_right_key";
-        "shortcuts/custom/Super+Up"         = "maximize_window_key";
-        "shortcuts/custom/Super+Down"       = "hide_window_key";
+        "shortcuts/custom/Super+h"          = "tile_left_key";
+        "shortcuts/custom/Super+l"          = "tile_right_key";
+        "shortcuts/custom/Super+k"          = "maximize_window_key";
+        "shortcuts/custom/Super+j"          = "hide_window_key";
         "shortcuts/custom/Super+Tab"        = "cycle_windows_key";
-        "shortcuts/custom/Super+shift+Left"  = "move_window_prev_workspace_key";
-        "shortcuts/custom/Super+shift+Right" = "move_window_next_workspace_key";
+        "shortcuts/custom/Super+shift+h"    = "move_window_prev_workspace_key";
+        "shortcuts/custom/Super+shift+l"    = "move_window_next_workspace_key";
       };
 
       xsettings = {
