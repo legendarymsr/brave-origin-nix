@@ -63,30 +63,57 @@ via `security.wrappers`, so the browser runs with a proper sandbox.
 
 ## XFCE
 
-The flake also ships optional XFCE modules — mainly so everything lives in one place.
+The main point of this flake is Brave Origin — that's the whole reason it exists.
+XFCE is here as a convenience: if you're setting up a fresh NixOS machine and
+just want a working desktop without thinking about it, you can pull everything
+from this one flake instead of juggling separate inputs. Stock XFCE, nothing
+fancy, gets out of the way so Brave Origin can be the focus.
 
-**NixOS** (`nixosModules.xfce`):
+If you already have a desktop environment or your own flake setup, ignore this
+entirely — just use the `brave-origin` modules above.
+
+**One-flake NixOS + home-manager setup** (browser + desktop, nothing else needed):
+
+`/etc/nixos/flake.nix`:
 ```nix
-imports = [ inputs.brave-origin.nixosModules.xfce ];
-desktop.xfce = {
-  enable = true;
-  displayManager = "lightdm"; # lightdm | gdm | sddm
-  extraPlugins   = [ pkgs.xfce.xfce4-weather-plugin ];
-};
+{
+  inputs = {
+    nixpkgs.url        = "github:nixos/nixpkgs/nixos-unstable";
+    home-manager.url   = "github:nix-community/home-manager";
+    brave-origin.url   = "github:legendarymsr/brave-origin-nix";
+  };
+
+  outputs = { nixpkgs, home-manager, brave-origin, ... }: {
+    nixosConfigurations.mymachine = nixpkgs.lib.nixosSystem {
+      system = "x86_64-linux";
+      modules = [
+        ./hardware-configuration.nix
+        brave-origin.nixosModules.brave-origin
+        brave-origin.nixosModules.xfce
+        home-manager.nixosModules.home-manager
+        {
+          programs.brave-origin.enable = true;
+          desktop.xfce.enable          = true;
+
+          home-manager.users.youruser = {
+            imports = [
+              brave-origin.homeManagerModules.brave-origin
+              brave-origin.homeManagerModules.xfce
+            ];
+            programs.brave-origin.enable = true;
+            programs.brave-origin.defaultBrowser = true;
+            desktop.xfce.enable = true;
+            home.stateVersion   = "24.11";
+          };
+        }
+      ];
+    };
+  };
+}
 ```
 
-**home-manager** (`homeManagerModules.xfce`):
-```nix
-imports = [ inputs.brave-origin.homeManagerModules.xfce ];
-desktop.xfce = {
-  enable       = true;
-  theme        = "Adwaita-dark";
-  iconTheme    = "Papirus-Dark";
-  terminalFont = "JetBrains Mono 11";
-};
-```
-
-The home-manager module sets GTK theme, xfconf keys (xfwm4, xsettings, xfce4-terminal, Thunar), and wires Brave Origin as the default browser automatically.
+That's it — one flake, one `nixos-rebuild switch`, and you have XFCE with Brave
+Origin as the default browser, sandbox wired up, and nothing extra to configure.
 
 ## Sandboxing
 
