@@ -61,39 +61,6 @@ programs.brave-origin.enable = true;
 The NixOS module also sets up the `chrome-sandbox` setuid wrapper automatically
 via `security.wrappers`, so the browser runs with a proper sandbox.
 
-## Security module
-
-The flake ships a dedicated security module (`nixosModules.brave-origin-security`)
-with declarative options for every privilege-related knob:
-
-```nix
-imports = [
-  inputs.brave-origin.nixosModules.brave-origin
-  inputs.brave-origin.nixosModules.brave-origin-security
-];
-
-programs.brave-origin = {
-  enable = true;
-  security = {
-    # "setuid" (default) | "userns" | "none"
-    sandbox = "setuid";
-
-    # Requires security.apparmor.enable = true
-    apparmor = true;
-
-    # Kernel 5.13+; exposes a hardened systemd user service
-    landlock = false;
-  };
-};
-```
-
-| Option | Default | Description |
-|---|---|---|
-| `security.sandbox` | `"setuid"` | `setuid` – chrome-sandbox setuid wrapper; `userns` – unprivileged namespaces; `none` – `--no-sandbox` (not recommended) |
-| `security.apparmor` | `false` | Load a MAC profile denying access to `~/.ssh`, `~/.gnupg`, `/etc/shadow` |
-| `security.landlock` | `false` | Harden via systemd service with filesystem allow-lists (kernel ≥ 5.13) |
-| `security.memoryDenyWriteExecute` | `false` | Block W+X pages (only works with `--jitless`) |
-
 ## Sandboxing
 
 The Chromium sandbox requires `chrome-sandbox` to be setuid root, which the
