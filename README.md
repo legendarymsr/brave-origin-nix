@@ -61,6 +61,33 @@ programs.brave-origin.enable = true;
 The NixOS module also sets up the `chrome-sandbox` setuid wrapper automatically
 via `security.wrappers`, so the browser runs with a proper sandbox.
 
+## XFCE
+
+The flake also ships optional XFCE modules — mainly so everything lives in one place.
+
+**NixOS** (`nixosModules.xfce`):
+```nix
+imports = [ inputs.brave-origin.nixosModules.xfce ];
+desktop.xfce = {
+  enable = true;
+  displayManager = "lightdm"; # lightdm | gdm | sddm
+  extraPlugins   = [ pkgs.xfce.xfce4-weather-plugin ];
+};
+```
+
+**home-manager** (`homeManagerModules.xfce`):
+```nix
+imports = [ inputs.brave-origin.homeManagerModules.xfce ];
+desktop.xfce = {
+  enable       = true;
+  theme        = "Adwaita-dark";
+  iconTheme    = "Papirus-Dark";
+  terminalFont = "JetBrains Mono 11";
+};
+```
+
+The home-manager module sets GTK theme, xfconf keys (xfwm4, xsettings, xfce4-terminal, Thunar), and wires Brave Origin as the default browser automatically.
+
 ## Sandboxing
 
 The Chromium sandbox requires `chrome-sandbox` to be setuid root, which the
