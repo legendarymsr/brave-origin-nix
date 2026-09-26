@@ -1,5 +1,5 @@
 { brave-origin }:
-{ config, lib, pkgs, ... }: with lib;
+{ config, lib, ... }: with lib;
 let
   cfg = config.programs.brave-origin;
   desktopFile = "brave-origin.desktop";
