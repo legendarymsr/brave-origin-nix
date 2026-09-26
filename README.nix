@@ -65,7 +65,7 @@
       "Super+b"       = "brave-origin";
       "Super+t"       = "terminal";
       "Super+e"       = "file manager (Thunar)";
-      "Super+l"       = "lock screen";
+      "Super+Shift+l" = "lock screen";
       "Super+h"       = "tile left";
       "Super+l"       = "tile right";
       "Super+k"       = "maximise";

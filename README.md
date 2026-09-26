@@ -82,7 +82,7 @@ The point of this flake is Brave Origin. XFCE is here purely so you don't have t
 | `Super + B` | Launch Brave Origin |
 | `Super + T` | Terminal |
 | `Super + E` | File manager (Thunar) |
-| `Super + L` | Lock screen |
+| `Super + Shift + L` | Lock screen |
 | `Super + H/L` | Tile window left/right |
 | `Super + K` | Maximise |
 | `Super + J` | Minimise |

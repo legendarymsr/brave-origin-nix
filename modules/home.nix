@@ -1,4 +1,5 @@
-{ config, lib, pkgs, brave-origin, ... }: with lib;
+{ brave-origin }:
+{ config, lib, pkgs, ... }: with lib;
 let
   cfg = config.programs.brave-origin;
   desktopFile = "brave-origin.desktop";
@@ -36,21 +37,20 @@ in {
     xdg.mimeApps = mkIf cfg.defaultBrowser {
       enable = true;
       defaultApplications = {
-        "text/html"               = desktopFile;
-        "x-scheme-handler/http"   = desktopFile;
-        "x-scheme-handler/https"  = desktopFile;
-        "x-scheme-handler/ftp"    = desktopFile;
-        "application/xhtml+xml"   = desktopFile;
-        "application/x-extension-htm"  = desktopFile;
-        "application/x-extension-html" = desktopFile;
-        "application/x-extension-xhtml" = desktopFile;
-        "application/x-extension-xht"  = desktopFile;
+        "text/html"                      = desktopFile;
+        "x-scheme-handler/http"          = desktopFile;
+        "x-scheme-handler/https"         = desktopFile;
+        "x-scheme-handler/ftp"           = desktopFile;
+        "application/xhtml+xml"          = desktopFile;
+        "application/x-extension-htm"    = desktopFile;
+        "application/x-extension-html"   = desktopFile;
+        "application/x-extension-xhtml"  = desktopFile;
+        "application/x-extension-xht"    = desktopFile;
       };
     };
 
-    # Force-install extensions via managed policy
     home.file = mkIf (cfg.extensions != []) {
-      ".config/BraveSoftware/Brave-Browser-Nightly/policies/managed/extensions.json".text =
+      ".config/BraveSoftware/Brave-Browser-Origin-Nightly/policies/managed/extensions.json".text =
         builtins.toJSON {
           ExtensionInstallForcelist =
             map (id: "${id};https://clients2.google.com/service/update2/crx")
@@ -58,13 +58,12 @@ in {
         };
     };
 
-    # Append extra flags to the desktop entry
     xdg.desktopEntries = mkIf (cfg.commandLineArgs != []) {
       brave-origin = {
-        name    = "Brave Origin";
-        exec    = "brave-origin ${concatStringsSep " " cfg.commandLineArgs} %U";
-        icon    = "brave-origin";
-        comment = "Brave browser — Origin (nightly) channel";
+        name       = "Brave Origin";
+        exec       = "brave-origin ${lib.escapeShellArgs cfg.commandLineArgs} %U";
+        icon       = "brave-origin";
+        comment    = "Brave browser — Origin (nightly) channel";
         categories = [ "Network" "WebBrowser" ];
         mimeType   = [ "text/html" "x-scheme-handler/http" "x-scheme-handler/https" ];
       };

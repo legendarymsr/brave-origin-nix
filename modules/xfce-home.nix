@@ -48,7 +48,7 @@ let cfg = config.desktop.xfce; in {
         "shortcuts/custom/Super+b"          = "brave-origin";
         "shortcuts/custom/Super+e"          = "thunar";
         "shortcuts/custom/Super+t"          = "xfce4-terminal";
-        "shortcuts/custom/Super+l"          = "xflock4";
+        "shortcuts/custom/Super+shift+l"    = "xflock4";
         "shortcuts/custom/Super+d"          = "xfdesktop --menu";
         "shortcuts/custom/Print"            = "xfce4-screenshooter";
         "shortcuts/custom/Alt+F4"           = "close_window_key";
@@ -90,11 +90,5 @@ let cfg = config.desktop.xfce; in {
       };
     };
 
-    # Brave Origin as default browser in XFCE
-    xdg.mimeApps.defaultApplications = {
-      "text/html"              = "brave-origin.desktop";
-      "x-scheme-handler/http"  = "brave-origin.desktop";
-      "x-scheme-handler/https" = "brave-origin.desktop";
-    };
   };
 }
