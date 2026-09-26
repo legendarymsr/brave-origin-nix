@@ -24,11 +24,13 @@ let cfg = config.desktop.xfce; in {
     services.xserver = {
       enable = true;
       desktopManager.xfce.enable = true;
-      displayManager = {
-        lightdm.enable = cfg.displayManager == "lightdm";
-        gdm.enable     = cfg.displayManager == "gdm";
-        sddm.enable    = cfg.displayManager == "sddm";
-      };
+    };
+
+    # Display manager — config lives under services.displayManager on nixos-unstable
+    services.displayManager = {
+      lightdm.enable = cfg.displayManager == "lightdm";
+      gdm.enable     = cfg.displayManager == "gdm";
+      sddm.enable    = cfg.displayManager == "sddm";
     };
 
     # Touchpad support
