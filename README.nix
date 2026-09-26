@@ -138,17 +138,7 @@
       programs.nixvim-simple.enable = true;
     '';
 
-    features    = [ "relative numbers" "nixd (Nix LSP)" "nvim-cmp completions" "treesitter" "telescope" "catppuccin mocha" "lualine" ];
-    keybindings = {
-      "Space+ff"     = "find files";
-      "Space+fg"     = "live grep";
-      "Space+fb"     = "buffers";
-      "Space+e"      = "file explorer";
-      "Ctrl+h/j/k/l" = "navigate splits";
-      "Tab"          = "next completion";
-      "Shift+Tab"    = "prev completion";
-      "Enter"        = "confirm completion";
-    };
+    features = [ "relative numbers" "nixd (Nix LSP)" "lualine" ];
   };
   # ─────────────────────────────────────────────────────────────────────────
 }

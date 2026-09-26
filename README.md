@@ -161,14 +161,4 @@ imports = [ inputs.brave-origin.homeManagerModules.nixvim ];
 programs.nixvim-simple.enable = true;
 ```
 
-**Features:** relative numbers · nixd (Nix LSP) · nvim-cmp · treesitter · telescope · catppuccin mocha · lualine
-
-| Keybind | Action |
-|---|---|
-| `Space + FF` | Find files |
-| `Space + FG` | Live grep |
-| `Space + FB` | Buffers |
-| `Space + E` | File explorer |
-| `Ctrl + H/J/K/L` | Navigate splits |
-| `Tab / Shift+Tab` | Cycle completions |
-| `Enter` | Confirm completion |
+**Features:** relative numbers · nixd (Nix LSP) · lualine
