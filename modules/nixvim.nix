@@ -14,15 +14,11 @@
         expandtab      = true;
         shiftwidth     = 2;
         tabstop        = 2;
-        termguicolors  = true;
       };
 
-      plugins = {
-        lsp = {
-          enable = true;
-          servers.nixd.enable = true;
-        };
-        lualine.enable = true;
+      plugins.lsp = {
+        enable = true;
+        servers.nixd.enable = true;
       };
     };
   };

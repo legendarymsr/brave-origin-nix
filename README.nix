@@ -138,7 +138,7 @@
       programs.nixvim-simple.enable = true;
     '';
 
-    features = [ "relative numbers" "nixd (Nix LSP)" "lualine" ];
+    features = [ "relative numbers" "nixd (Nix LSP)" ];
   };
   # ─────────────────────────────────────────────────────────────────────────
 }

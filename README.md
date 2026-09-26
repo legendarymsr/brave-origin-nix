@@ -161,4 +161,4 @@ imports = [ inputs.brave-origin.homeManagerModules.nixvim ];
 programs.nixvim-simple.enable = true;
 ```
 
-**Features:** relative numbers · nixd (Nix LSP) · lualine
+**Features:** relative numbers · nixd (Nix LSP)
