@@ -1,0 +1,19 @@
+brave-origin-nix is dual-licensed under GPL-3.0 and MPL-2.0.
+You may use, modify, and distribute it under either license, at your option.
+
+Why dual-licensed?
+──────────────────
+Brave Browser itself is licensed under MPL-2.0. Offering MPL-2.0 here means
+the licensing of this packaging code is consistent with the software it
+packages — anyone working with both can do so under a single license.
+
+GPL-3.0 is included because it is the standard copyleft license for free
+software. If you are building something GPL-licensed, you can use this flake
+without any license mismatch.
+
+In short: pick whichever license works for your project.
+
+  GPL-3.0  →  see LICENSE
+  MPL-2.0  →  see LICENSE-MPL
+
+Copyright (C) 2026 legendarymsr
