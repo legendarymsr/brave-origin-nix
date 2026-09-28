@@ -8,26 +8,25 @@ Copyright (C) 2026 legendarymsr
 
 ───────────────────────────────────────────────────────────────────────────────
 
-If you're wondering why both and not just MPL-2.0
+If you're wondering why both and not just GPL-3.0
 ──────────────────────────────────────────────────
-Good question. Brave Browser is MPL-2.0, so offering MPL-2.0 here makes the
-packaging code license-compatible with the software it packages. That part is
-straightforward.
+GPL-3.0 is the preferred license here — it is strong copyleft, well understood
+in the free software world, and ensures that modifications to this packaging
+code cannot be folded into a closed product without sharing them back.
 
-But MPL-2.0 alone has a limitation: it is a weak copyleft license. It requires
-you to share modifications to MPL-licensed files, but it does not require the
-larger work to be open source. Someone could take this flake, modify it, fold
-it into a proprietary product, and never share those changes as long as they
-keep the Nix files technically available.
+However, this flake packages and distributes the Brave Origin binary, and Brave
+is licensed under MPL-2.0 by Brave Software, Inc. As a distributor of that
+binary, it is reasonable to honour the spirit of Brave's own license by making
+the packaging code available under MPL-2.0 as well. This keeps the licensing
+of the wrapper consistent with the software it wraps.
 
-GPL-3.0 closes that gap. It is a strong copyleft license — if you distribute
-something that includes GPL-3.0 code, the whole thing must be GPL-3.0. That
-means modifications cannot quietly disappear into a closed product.
+MPL-2.0 is also a copyleft license, but a weaker one — it only requires
+modifications to MPL-licensed files to be shared, not the larger work around
+them. That is why GPL-3.0 is the stronger and preferred choice for this project.
 
-By offering both, anyone in the free software / NixOS ecosystem can use this
-under GPL-3.0 with its stronger guarantees, while anyone building something
-that is already MPL-2.0 (or just needs the weaker copyleft) can use it under
-that instead. No license mismatch, no friction, maximum compatibility.
+In short: GPL-3.0 is what this project stands behind. MPL-2.0 is offered
+alongside it out of respect for Brave's license, given that this flake exists
+specifically to distribute Brave Origin.
 
 If you just want to use the flake, none of this matters — do whatever you want.
-If you are redistributing or building on top of it, pick the license that fits.
+If you are redistributing or building on top of it, GPL-3.0 is recommended.
