@@ -1,19 +1,33 @@
 brave-origin-nix is dual-licensed under GPL-3.0 and MPL-2.0.
 You may use, modify, and distribute it under either license, at your option.
 
-Why dual-licensed?
-──────────────────
-Brave Browser itself is licensed under MPL-2.0. Offering MPL-2.0 here means
-the licensing of this packaging code is consistent with the software it
-packages — anyone working with both can do so under a single license.
-
-GPL-3.0 is included because it is the standard copyleft license for free
-software. If you are building something GPL-licensed, you can use this flake
-without any license mismatch.
-
-In short: pick whichever license works for your project.
-
   GPL-3.0  →  see LICENSE
   MPL-2.0  →  see LICENSE-MPL
 
 Copyright (C) 2026 legendarymsr
+
+───────────────────────────────────────────────────────────────────────────────
+
+If you're wondering why both and not just MPL-2.0
+──────────────────────────────────────────────────
+Good question. Brave Browser is MPL-2.0, so offering MPL-2.0 here makes the
+packaging code license-compatible with the software it packages. That part is
+straightforward.
+
+But MPL-2.0 alone has a limitation: it is a weak copyleft license. It requires
+you to share modifications to MPL-licensed files, but it does not require the
+larger work to be open source. Someone could take this flake, modify it, fold
+it into a proprietary product, and never share those changes as long as they
+keep the Nix files technically available.
+
+GPL-3.0 closes that gap. It is a strong copyleft license — if you distribute
+something that includes GPL-3.0 code, the whole thing must be GPL-3.0. That
+means modifications cannot quietly disappear into a closed product.
+
+By offering both, anyone in the free software / NixOS ecosystem can use this
+under GPL-3.0 with its stronger guarantees, while anyone building something
+that is already MPL-2.0 (or just needs the weaker copyleft) can use it under
+that instead. No license mismatch, no friction, maximum compatibility.
+
+If you just want to use the flake, none of this matters — do whatever you want.
+If you are redistributing or building on top of it, pick the license that fits.
