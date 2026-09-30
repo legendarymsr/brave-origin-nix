@@ -1,10 +1,10 @@
 { brave-origin }:
 { config, lib, ... }: with lib;
 let
-  cfg = config.programs.brave-origin;
-  desktopFile = "brave-origin.desktop";
+  cfg = config.programs.brave-origin-nightly;
+  desktopFile = "com.brave.Origin.nightly.desktop";
 in {
-  options.programs.brave-origin = {
+  options.programs.brave-origin-nightly = {
     enable = mkEnableOption "Brave Origin (nightly) browser";
 
     defaultBrowser = mkOption {
@@ -18,8 +18,9 @@ in {
       default = [];
       example = [ "cjpalhdlnbpafiamejdnhcphjbkeiagm" ];
       description = ''
-        List of Chrome Web Store extension IDs to force-install.
-        These are installed automatically and cannot be removed by the user.
+        List of Chrome Web Store extension IDs to install via per-profile
+        "External Extensions" files (~/.config/BraveSoftware/Brave-Origin-Nightly).
+        They are installed on next start; the user can still remove them.
       '';
     };
 
@@ -49,17 +50,17 @@ in {
       };
     };
 
-    home.file = mkIf (cfg.extensions != []) {
-      ".config/BraveSoftware/Brave-Browser-Origin-Nightly/policies/managed/extensions.json".text =
-        builtins.toJSON {
-          ExtensionInstallForcelist =
-            map (id: "${id};https://clients2.google.com/service/update2/crx")
-                cfg.extensions;
-        };
-    };
+    # Chromium never reads managed policies from $HOME; use per-profile
+    # "External Extensions" files instead (installed, but user-removable).
+    home.file = listToAttrs (map (id: {
+      name  = ".config/BraveSoftware/Brave-Origin-Nightly/External Extensions/${id}.json";
+      value.text = builtins.toJSON {
+        external_update_url = "https://clients2.google.com/service/update2/crx";
+      };
+    }) cfg.extensions);
 
     xdg.desktopEntries = mkIf (cfg.commandLineArgs != []) {
-      brave-origin = {
+      "com.brave.Origin.nightly" = {
         name       = "Brave Origin";
         exec       = "brave-origin ${lib.escapeShellArgs cfg.commandLineArgs} %U";
         icon       = "brave-origin";

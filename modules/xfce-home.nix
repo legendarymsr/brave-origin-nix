@@ -43,22 +43,36 @@ let cfg = config.desktop.xfce; in {
         "general/button_layout"   = "O|HMC";
         "general/use_compositing" = true;
         "general/frame_opacity"   = 100;
+      };
 
-        # Keybindings
-        "shortcuts/custom/Super+b"          = "brave-origin";
-        "shortcuts/custom/Super+e"          = "thunar";
-        "shortcuts/custom/Super+t"          = "xfce4-terminal";
-        "shortcuts/custom/Super+shift+l"    = "xflock4";
-        "shortcuts/custom/Super+d"          = "xfdesktop --menu";
-        "shortcuts/custom/Print"            = "xfce4-screenshooter";
-        "shortcuts/custom/Alt+F4"           = "close_window_key";
-        "shortcuts/custom/Super+h"          = "tile_left_key";
-        "shortcuts/custom/Super+l"          = "tile_right_key";
-        "shortcuts/custom/Super+k"          = "maximize_window_key";
-        "shortcuts/custom/Super+j"          = "hide_window_key";
-        "shortcuts/custom/Super+Tab"        = "cycle_windows_key";
-        "shortcuts/custom/Super+shift+h"    = "move_window_prev_workspace_key";
-        "shortcuts/custom/Super+shift+l"    = "move_window_next_workspace_key";
+      # Keybindings. Launcher commands and xfwm4 window actions both live in
+      # the xfce4-keyboard-shortcuts channel, using GTK accelerator syntax.
+      #
+      # We deliberately do NOT set commands/custom/override or
+      # xfwm4/custom/override: on first login XFCE clones its stock defaults
+      # into custom/ when override is unset, so Alt+Tab etc. keep working and
+      # these entries are layered on top. (On a brand-new profile the clone
+      # wipes custom/ once, so the bindings below apply from the next
+      # home-manager activation after the first XFCE login.)
+      xfce4-keyboard-shortcuts = {
+        "commands/custom/<Super>b"          = "brave-origin";
+        "commands/custom/<Super>e"          = "thunar";
+        "commands/custom/<Super>t"          = "xfce4-terminal";
+        "commands/custom/<Super>Escape"     = "xflock4";
+        "commands/custom/<Super>d"          = "xfdesktop --menu";
+        "commands/custom/Print"             = "xfce4-screenshooter";
+        # Stock defaults that clash with the bindings here (null = remove).
+        "commands/custom/<Super>l"          = null;  # xflock4 -> tile_right_key
+        "xfwm4/custom/<Super>d"             = null;  # show_desktop_key -> desktop menu
+
+        "xfwm4/custom/<Alt>F4"              = "close_window_key";
+        "xfwm4/custom/<Super>h"             = "tile_left_key";
+        "xfwm4/custom/<Super>l"             = "tile_right_key";
+        "xfwm4/custom/<Super>k"             = "maximize_window_key";
+        "xfwm4/custom/<Super>j"             = "hide_window_key";
+        "xfwm4/custom/<Super>Tab"           = "cycle_windows_key";
+        "xfwm4/custom/<Super><Shift>h"      = "move_window_prev_workspace_key";
+        "xfwm4/custom/<Super><Shift>l"      = "move_window_next_workspace_key";
       };
 
       xsettings = {
