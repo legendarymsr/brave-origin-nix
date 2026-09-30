@@ -23,7 +23,7 @@
       homeModules.brave-origin = import ./modules/home.nix     { inherit brave-origin; };
       homeModules.xfce         = import ./modules/xfce-home.nix;
       homeModules.nixvim       = {
-        imports = [ nixvim.homeModules.nixvim ./modules/nixvim.nix ];
+        imports = [ nixvim.homeModules.nixvim (import ./modules/nixvim.nix { inherit nixpkgs; }) ];
       };
       # Backwards-compatible alias (older name for the same modules).
       homeManagerModules = self.homeModules;
