@@ -3,9 +3,8 @@
 
   inputs = {
     nixpkgs.url      = "github:nixos/nixpkgs/nixos-unstable";
-    # No `inputs.nixpkgs.follows` here on purpose: nixvim evaluates its module
-    # set against its own pinned Nixpkgs (and warns when that is overridden).
     nixvim.url       = "github:nix-community/nixvim";
+    nixvim.inputs.nixpkgs.follows = "nixpkgs";
   };
 
   outputs = { self, nixpkgs, nixvim }:
