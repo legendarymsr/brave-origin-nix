@@ -37,9 +37,9 @@ inputs.brave-origin.url = "github:legendarymsr/brave-origin-nix";
 In your home-manager configuration:
 
 ```nix
-imports = [ inputs.brave-origin.homeManagerModules.brave-origin ];
+imports = [ inputs.brave-origin.homeModules.brave-origin ];
 
-programs.brave-origin = {
+programs.brave-origin-nightly = {
   enable          = true;
   defaultBrowser  = true;                              # optional
   extensions      = [ "cjpalhdlnbpafiamejdnhcphjbkeiagm" ]; # optional — CWS ID
@@ -47,13 +47,22 @@ programs.brave-origin = {
 };
 ```
 
+> **Breaking change:** the home-manager options moved from `programs.brave-origin.*` to
+> `programs.brave-origin-nightly.*`. home-manager now ships its own `programs.brave-origin`
+> (Chromium-family module), and the two collided with
+> `The option 'programs.brave-origin.enable' ... is already declared`.
+> Migration: rename `programs.brave-origin` → `programs.brave-origin-nightly` in your
+> home-manager config. The NixOS option `programs.brave-origin.enable` is unchanged.
+>
+> `homeManagerModules` is kept as an alias of `homeModules`.
+
 ### Options
 
 | Option | Type | Default | Description |
 |---|---|---|---|
 | `enable` | bool | `false` | Install brave-origin |
 | `defaultBrowser` | bool | `false` | Set as default browser for http/https/HTML |
-| `extensions` | list of strings | `[]` | Chrome Web Store extension IDs to force-install |
+| `extensions` | list of strings | `[]` | Chrome Web Store extension IDs to install (via "External Extensions"; user-removable) |
 | `commandLineArgs` | list of strings | `[]` | Extra flags passed to the browser on startup |
 
 ---
@@ -117,15 +126,15 @@ Browser + desktop + editor, nothing else needed:
 
           home-manager.users.youruser = {
             imports = [
-              brave-origin.homeManagerModules.brave-origin
-              brave-origin.homeManagerModules.xfce
-              brave-origin.homeManagerModules.nixvim
+              brave-origin.homeModules.brave-origin
+              brave-origin.homeModules.xfce
+              brave-origin.homeModules.nixvim
             ];
-            programs.brave-origin.enable        = true;
-            programs.brave-origin.defaultBrowser = true;
-            desktop.xfce.enable                 = true;
-            programs.nixvim-simple.enable       = true;
-            home.stateVersion                   = "24.11";
+            programs.brave-origin-nightly.enable         = true;
+            programs.brave-origin-nightly.defaultBrowser = true;
+            desktop.xfce.enable                          = true;
+            programs.nixvim-simple.enable                = true;
+            home.stateVersion                            = "24.11";
           };
         }
       ];
@@ -159,7 +168,7 @@ sudo install -D -m 4755 -o root -g root \
 Minimal nixvim — no extra flake input needed, re-exported by this flake:
 
 ```nix
-imports = [ inputs.brave-origin.homeManagerModules.nixvim ];
+imports = [ inputs.brave-origin.homeModules.nixvim ];
 programs.nixvim-simple.enable = true;
 ```
 
