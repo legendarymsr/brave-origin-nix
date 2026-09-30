@@ -140,9 +140,11 @@ Browser + desktop + editor, nothing else needed:
 
 The NixOS module handles `chrome-sandbox` automatically via `security.wrappers`.
 
-For standalone `nix run`, brave-origin tries `sudo -n` first and falls back to `--no-sandbox`.
+For standalone `nix run` (no NixOS module), the launcher never escalates privileges itself: if
+`/run/wrappers/bin/chrome-sandbox` is missing it prints a warning to stderr and starts with
+`--no-sandbox`.
 
-Manual one-time setup:
+Manual setup on non-NixOS-module systems (`/run` is a tmpfs, so repeat after each reboot):
 
 ```bash
 sudo install -D -m 4755 -o root -g root \

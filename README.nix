@@ -121,8 +121,9 @@
   # ─────────────────────────────────────────────────────────────────────────
   # ── Sandboxing ────────────────────────────────────────────────────────────
   # NixOS module handles this automatically via security.wrappers.
-  # Standalone nix run: tries sudo -n first, falls back to --no-sandbox.
-  # Manual one-time setup:
+  # Standalone nix run: never escalates itself; if /run/wrappers/bin/chrome-sandbox
+  # is missing it warns on stderr and falls back to --no-sandbox.
+  # Manual setup (/run is a tmpfs, so repeat after each reboot):
   sandboxing.manualSetup = ''
     sudo install -D -m 4755 -o root -g root \
       "$(nix build github:legendarymsr/brave-origin-nix --no-link --print-out-paths)/libexec/brave-origin-nightly/chrome-sandbox" \
