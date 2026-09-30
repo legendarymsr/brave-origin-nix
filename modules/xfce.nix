@@ -14,7 +14,7 @@ let cfg = config.desktop.xfce; in {
     extraPlugins = mkOption {
       type    = types.listOf types.package;
       default = [];
-      example = literalExpression "[ pkgs.xfce.xfce4-whiskermenu-plugin ]";
+      example = literalExpression "[ pkgs.xfce4-whiskermenu-plugin ]";
       description = "Additional XFCE panel plugins to install.";
     };
   };
@@ -26,9 +26,10 @@ let cfg = config.desktop.xfce; in {
       desktopManager.xfce.enable = true;
     };
 
-    # Display manager — config lives under services.displayManager on nixos-unstable
+    # Display manager — gdm/sddm live under services.displayManager,
+    # lightdm is still under services.xserver.displayManager.
+    services.xserver.displayManager.lightdm.enable = cfg.displayManager == "lightdm";
     services.displayManager = {
-      lightdm.enable = cfg.displayManager == "lightdm";
       gdm.enable     = cfg.displayManager == "gdm";
       sddm.enable    = cfg.displayManager == "sddm";
     };
@@ -38,14 +39,14 @@ let cfg = config.desktop.xfce; in {
 
     # Common XFCE utilities
     environment.systemPackages = with pkgs; [
-      xfce.thunar
-      xfce.thunar-volman
-      xfce.xfce4-terminal
-      xfce.xfce4-taskmanager
-      xfce.xfce4-pulseaudio-plugin
-      xfce.xfce4-whiskermenu-plugin
-      xfce.xfce4-notifyd
-      xfce.xfconf
+      thunar
+      thunar-volman
+      xfce4-terminal
+      xfce4-taskmanager
+      xfce4-pulseaudio-plugin
+      xfce4-whiskermenu-plugin
+      xfce4-notifyd
+      xfconf
       gvfs        # trash, network mounts in Thunar
       polkit_gnome
     ] ++ cfg.extraPlugins;
