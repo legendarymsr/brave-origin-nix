@@ -27,9 +27,11 @@
 
     # Add to home-manager configuration:
     config = ''
-      imports = [ inputs.brave-origin.homeManagerModules.brave-origin ];
+      imports = [ inputs.brave-origin.homeModules.brave-origin ];
 
-      programs.brave-origin = {
+      # Breaking change: was programs.brave-origin (now taken by home-manager's
+      # own Chromium-family module). Rename to programs.brave-origin-nightly.
+      programs.brave-origin-nightly = {
         enable          = true;
         defaultBrowser  = true;                              # optional
         extensions      = [ "cjpalhdlnbpafiamejdnhcphjbkeiagm" ]; # optional — CWS ID
@@ -40,7 +42,7 @@
     options = {
       enable          = { type = "bool";            default = false; description = "Install brave-origin"; };
       defaultBrowser  = { type = "bool";            default = false; description = "Set as default browser for http/https/HTML"; };
-      extensions      = { type = "list of strings"; default = [];    description = "Chrome Web Store extension IDs to force-install"; };
+      extensions      = { type = "list of strings"; default = [];    description = "Chrome Web Store extension IDs to install (External Extensions; user-removable)"; };
       commandLineArgs = { type = "list of strings"; default = [];    description = "Extra flags passed to the browser on startup"; };
     };
   };
@@ -100,15 +102,15 @@
 
                 home-manager.users.youruser = {
                   imports = [
-                    brave-origin.homeManagerModules.brave-origin
-                    brave-origin.homeManagerModules.xfce
-                    brave-origin.homeManagerModules.nixvim
+                    brave-origin.homeModules.brave-origin
+                    brave-origin.homeModules.xfce
+                    brave-origin.homeModules.nixvim
                   ];
-                  programs.brave-origin.enable        = true;
-                  programs.brave-origin.defaultBrowser = true;
-                  desktop.xfce.enable                 = true;
-                  programs.nixvim-simple.enable       = true;
-                  home.stateVersion                   = "24.11";
+                  programs.brave-origin-nightly.enable         = true;
+                  programs.brave-origin-nightly.defaultBrowser = true;
+                  desktop.xfce.enable                          = true;
+                  programs.nixvim-simple.enable                = true;
+                  home.stateVersion                            = "24.11";
                 };
               }
             ];
@@ -135,7 +137,7 @@
   # Minimal nixvim — no extra flake input needed, re-exported by this flake.
   textEditor = {
     enable = ''
-      imports = [ inputs.brave-origin.homeManagerModules.nixvim ];
+      imports = [ inputs.brave-origin.homeModules.nixvim ];
       programs.nixvim-simple.enable = true;
     '';
 
