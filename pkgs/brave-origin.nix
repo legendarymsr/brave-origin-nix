@@ -53,15 +53,12 @@ stdenv.mkDerivation rec {
       --prefix XDG_DATA_DIRS : "$GSETTINGS_SCHEMAS_PATH" \
       --suffix PATH          : "${xdg-utils}/bin" \
       --run ${lib.escapeShellArg ''
-        if [ ! -x /run/wrappers/bin/chrome-sandbox ]; then
-          sudo -n install -D -m 4755 -o root -g root \
-            "${placeholder "out"}/libexec/brave-origin-nightly/chrome-sandbox" \
-            /run/wrappers/bin/chrome-sandbox 2>/dev/null || true
-        fi
         if [ -x /run/wrappers/bin/chrome-sandbox ]; then
           export CHROME_DEVEL_SANDBOX=/run/wrappers/bin/chrome-sandbox
           SANDBOX_FLAG=""
         else
+          echo "brave-origin: warning: setuid sandbox not found at /run/wrappers/bin/chrome-sandbox;" \
+               "starting with --no-sandbox. Enable nixosModules.brave-origin (programs.brave-origin.enable) to fix." >&2
           SANDBOX_FLAG="--no-sandbox"
         fi
       ''} \
