@@ -20,10 +20,12 @@
       };
       nixosModules.brave-origin       = import ./modules/nixos.nix    { inherit brave-origin; };
       nixosModules.xfce               = import ./modules/xfce.nix;
-      homeManagerModules.brave-origin = import ./modules/home.nix     { inherit brave-origin; };
-      homeManagerModules.xfce         = import ./modules/xfce-home.nix;
-      homeManagerModules.nixvim       = {
-        imports = [ nixvim.homeManagerModules.nixvim ./modules/nixvim.nix ];
+      homeModules.brave-origin = import ./modules/home.nix     { inherit brave-origin; };
+      homeModules.xfce         = import ./modules/xfce-home.nix;
+      homeModules.nixvim       = {
+        imports = [ nixvim.homeModules.nixvim (import ./modules/nixvim.nix { inherit nixpkgs; }) ];
       };
+      # Backwards-compatible alias (older name for the same modules).
+      homeManagerModules = self.homeModules;
     };
 }

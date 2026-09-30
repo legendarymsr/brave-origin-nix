@@ -27,9 +27,11 @@
 
     # Add to home-manager configuration:
     config = ''
-      imports = [ inputs.brave-origin.homeManagerModules.brave-origin ];
+      imports = [ inputs.brave-origin.homeModules.brave-origin ];
 
-      programs.brave-origin = {
+      # Breaking change: was programs.brave-origin (now taken by home-manager's
+      # own Chromium-family module). Rename to programs.brave-origin-nightly.
+      programs.brave-origin-nightly = {
         enable          = true;
         defaultBrowser  = true;                              # optional
         extensions      = [ "cjpalhdlnbpafiamejdnhcphjbkeiagm" ]; # optional — CWS ID
@@ -40,7 +42,7 @@
     options = {
       enable          = { type = "bool";            default = false; description = "Install brave-origin"; };
       defaultBrowser  = { type = "bool";            default = false; description = "Set as default browser for http/https/HTML"; };
-      extensions      = { type = "list of strings"; default = [];    description = "Chrome Web Store extension IDs to force-install"; };
+      extensions      = { type = "list of strings"; default = [];    description = "Chrome Web Store extension IDs to install (External Extensions; user-removable)"; };
       commandLineArgs = { type = "list of strings"; default = [];    description = "Extra flags passed to the browser on startup"; };
     };
   };
@@ -65,7 +67,8 @@
       "Super+b"       = "brave-origin";
       "Super+t"       = "terminal";
       "Super+e"       = "file manager (Thunar)";
-      "Super+Shift+l" = "lock screen";
+      "Super+d"       = "desktop menu";
+      "Super+Escape"  = "lock screen";
       "Super+h"       = "tile left";
       "Super+l"       = "tile right";
       "Super+k"       = "maximise";
@@ -100,15 +103,15 @@
 
                 home-manager.users.youruser = {
                   imports = [
-                    brave-origin.homeManagerModules.brave-origin
-                    brave-origin.homeManagerModules.xfce
-                    brave-origin.homeManagerModules.nixvim
+                    brave-origin.homeModules.brave-origin
+                    brave-origin.homeModules.xfce
+                    brave-origin.homeModules.nixvim
                   ];
-                  programs.brave-origin.enable        = true;
-                  programs.brave-origin.defaultBrowser = true;
-                  desktop.xfce.enable                 = true;
-                  programs.nixvim-simple.enable       = true;
-                  home.stateVersion                   = "24.11";
+                  programs.brave-origin-nightly.enable         = true;
+                  programs.brave-origin-nightly.defaultBrowser = true;
+                  desktop.xfce.enable                          = true;
+                  programs.nixvim-simple.enable                = true;
+                  home.stateVersion                            = "24.11";
                 };
               }
             ];
@@ -121,8 +124,9 @@
   # ─────────────────────────────────────────────────────────────────────────
   # ── Sandboxing ────────────────────────────────────────────────────────────
   # NixOS module handles this automatically via security.wrappers.
-  # Standalone nix run: tries sudo -n first, falls back to --no-sandbox.
-  # Manual one-time setup:
+  # Standalone nix run: never escalates itself; if /run/wrappers/bin/chrome-sandbox
+  # is missing it warns on stderr and falls back to --no-sandbox.
+  # Manual setup (/run is a tmpfs, so repeat after each reboot):
   sandboxing.manualSetup = ''
     sudo install -D -m 4755 -o root -g root \
       "$(nix build github:legendarymsr/brave-origin-nix --no-link --print-out-paths)/libexec/brave-origin-nightly/chrome-sandbox" \
@@ -134,7 +138,7 @@
   # Minimal nixvim — no extra flake input needed, re-exported by this flake.
   textEditor = {
     enable = ''
-      imports = [ inputs.brave-origin.homeManagerModules.nixvim ];
+      imports = [ inputs.brave-origin.homeModules.nixvim ];
       programs.nixvim-simple.enable = true;
     '';
 

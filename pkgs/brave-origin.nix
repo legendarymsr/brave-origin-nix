@@ -7,11 +7,11 @@
 
 stdenv.mkDerivation rec {
   pname   = "brave-origin";
-  version = "1.97.24";
+  version = "1.98.46";
 
   src = fetchurl {
     url  = "https://github.com/brave/brave-browser/releases/download/v${version}/brave-origin-nightly_${version}_amd64.deb";
-    hash = "sha256-A7hpK3dD5b22V/3gl67lp0snUkL7w10BV+WXCUH11+4=";
+    hash = "sha256-pkeAfwVNwzPjOHhjSAMTgt2Yf7MOtAacvQz+86NHGIo=";
   };
 
   nativeBuildInputs = [ dpkg autoPatchelfHook makeWrapper wrapGAppsHook3 ];
@@ -24,6 +24,7 @@ stdenv.mkDerivation rec {
   ];
 
   autoPatchelfIgnoreMissingDeps = true;
+  dontWrapGApps = true;
 
   unpackPhase = "dpkg-deb --fsys-tarfile $src | tar x --no-same-permissions";
 
@@ -36,29 +37,28 @@ stdenv.mkDerivation rec {
     cp -r usr/share/icons/.        $out/share/icons/        2>/dev/null || true
 
     shopt -s nullglob
+    rm -f $out/share/applications/brave-origin-nightly.desktop   # duplicate of com.brave.Origin.nightly.desktop
+    for size in 16 24 32 48 64 128 256; do
+      install -Dm644 $out/libexec/brave-origin-nightly/product_logo_''${size}_nightly.png \
+        $out/share/icons/hicolor/''${size}x''${size}/apps/brave-origin.png
+    done
     desktopFiles=($out/share/applications/*.desktop)
     for f in "''${desktopFiles[@]}"; do
       substituteInPlace "$f" \
         --replace-quiet "/usr/bin/brave-origin-nightly" "$out/bin/brave-origin" \
         --replace-quiet "brave-origin-nightly" "brave-origin" || true
     done
-    if [ "''${#desktopFiles[@]}" -eq 1 ]; then
-      mv "''${desktopFiles[0]}" "$out/share/applications/brave-origin.desktop"
-    fi
 
-    makeWrapper $out/libexec/brave-origin-nightly/brave-origin-nightly $out/bin/brave-origin \
+    makeShellWrapper $out/libexec/brave-origin-nightly/brave-origin-nightly $out/bin/brave-origin \
       --prefix XDG_DATA_DIRS : "$GSETTINGS_SCHEMAS_PATH" \
       --suffix PATH          : "${xdg-utils}/bin" \
       --run ${lib.escapeShellArg ''
-        if [ ! -x /run/wrappers/bin/chrome-sandbox ]; then
-          sudo -n install -D -m 4755 -o root -g root \
-            "${placeholder "out"}/libexec/brave-origin-nightly/chrome-sandbox" \
-            /run/wrappers/bin/chrome-sandbox 2>/dev/null || true
-        fi
         if [ -x /run/wrappers/bin/chrome-sandbox ]; then
           export CHROME_DEVEL_SANDBOX=/run/wrappers/bin/chrome-sandbox
           SANDBOX_FLAG=""
         else
+          echo "brave-origin: warning: setuid sandbox not found at /run/wrappers/bin/chrome-sandbox;" \
+               "starting with --no-sandbox. Enable nixosModules.brave-origin (programs.brave-origin.enable) to fix." >&2
           SANDBOX_FLAG="--no-sandbox"
         fi
       ''} \

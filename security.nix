@@ -52,12 +52,13 @@
       };
 
       standalone = {
-        # When running via `nix run` the wrapper script attempts a one-time
-        # non-interactive sudo install, then sets CHROME_DEVEL_SANDBOX.
-        # Falls back to --no-sandbox if sudo is unavailable.
+        # When running via `nix run` the wrapper script only *uses* an existing
+        # helper at this path (setting CHROME_DEVEL_SANDBOX). It never tries to
+        # install one itself; if it is missing it prints a warning on stderr
+        # and falls back to --no-sandbox.
         path = "/run/wrappers/bin/chrome-sandbox";
         fallback = "--no-sandbox";
-        requiresSudo = true;  # one-time; cached credentials suffice
+        requiresSudo = false;  # manual install (see README) is the user's choice
       };
     };
   };
@@ -100,7 +101,7 @@
   limitations = [
     "Binary is not built from source; supply-chain trust rests on Brave's release signing and the fetchurl sha256 pin."
     "autoPatchelfIgnoreMissingDeps = true silences missing Qt shim warnings; Qt-based file dialogs may fall back gracefully."
-    "chrome-sandbox requires a one-time privileged setup outside the Nix store (either via security.wrappers or sudo)."
+    "chrome-sandbox requires a privileged setup outside the Nix store (security.wrappers via the NixOS module, or a manual install); without it the browser runs with --no-sandbox."
     "The x86_64-linux binary is distributed under MPL-2.0; Brave-specific components (Shields, Rewards) carry additional terms."
   ];
 }
