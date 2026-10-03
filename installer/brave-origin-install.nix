@@ -131,8 +131,10 @@ writeShellApplication {
       description = "Brave Origin NixOS — $HOSTNAME";
 
       inputs = {
-        nixpkgs.url          = "github:NixOS/nixpkgs/nixos-unstable";
-        brave-origin-nix.url = "github:legendarymsr/brave-origin-nix";
+        # Tarball URLs: no api.github.com calls (its anonymous rate limit
+        # is easy to hit behind shared or NATed addresses).
+        nixpkgs.url          = "https://channels.nixos.org/nixos-unstable/nixexprs.tar.xz";
+        brave-origin-nix.url = "https://github.com/legendarymsr/brave-origin-nix/archive/master.tar.gz";
         brave-origin-nix.inputs.nixpkgs.follows = "nixpkgs";
       };
 
