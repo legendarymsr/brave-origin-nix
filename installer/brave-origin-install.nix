@@ -141,6 +141,8 @@ writeShellApplication {
 
               boot.loader.systemd-boot.enable      = true;
               boot.loader.efi.canTouchEfiVariables = true;
+              # The ESP is mounted at /boot/efi (not the /boot default).
+              boot.loader.efi.efiSysMountPoint     = "/boot/efi";
 
               networking.hostName              = "$HOSTNAME";
               networking.networkmanager.enable = true;
@@ -163,7 +165,7 @@ writeShellApplication {
 
               environment.systemPackages = with pkgs; [
                 git curl htop
-                xfce.thunar xfce.xfce4-terminal
+                thunar xfce4-terminal
               ];
 
               nix.settings.experimental-features = [ "nix-command" "flakes" ];
