@@ -30,6 +30,9 @@
 
   # ── Live desktop: XFCE from nixosModules.xfce ──────────────────────
   desktop.xfce.enable = true;               # LightDM is the module default
+  # No idle screen lock on the live session (it would ask for the live
+  # user's empty password).
+  services.xserver.desktopManager.xfce.enableScreensaver = false;
   services.displayManager = {
     defaultSession     = "xfce";
     autoLogin.enable   = true;
