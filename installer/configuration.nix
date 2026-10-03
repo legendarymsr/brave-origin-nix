@@ -1,5 +1,5 @@
 { config, pkgs, lib, modulesPath, brave-origin, ... }:
-# Custom NixOS installer ISO — Brave Origin nightly pre-installed.
+# Custom NixOS installer ISO — Brave Origin channel pre-configured.
 #
 # Build:
 #   nix build .#nixosConfigurations.installer.config.system.build.isoImage
@@ -23,9 +23,15 @@
   time.timeZone       = "UTC";
   i18n.defaultLocale  = "en_US.UTF-8";
 
-  # ── Brave Origin + live env tools ─────────────────────────────────────
+  # ── Shrink the ISO below GitHub's 2 GB release-asset limit ────────────
+  # ZFS kernel modules alone add ~300 MB; we don't need them for install.
+  boot.supportedFilesystems = lib.mkOverride 10 [ "ext4" "vfat" "btrfs" "xfs" "ntfs" ];
+  boot.kernelModules        = lib.mkForce [];
+
+  # ── Live-environment packages ──────────────────────────────────────────
+  # brave-origin is NOT included in the live env — it gets installed on the
+  # target system by nixos-install.  Keeping it out saves ~400 MB on the ISO.
   environment.systemPackages = with pkgs; [
-    brave-origin
     ratpoison
     xterm
     xorg.xsetroot
@@ -38,15 +44,12 @@
   ];
 
   # ── Xorg available in the live env ────────────────────────────────────
-  # The user logs in at the TTY, runs `startx' to get Ratpoison.
-  # No display manager — keep the image small.
   services.xserver = {
     enable                         = true;
     windowManager.ratpoison.enable = true;
   };
-  services.displayManager.defaultSession = lib.mkForce "none+ratpoison";
 
-  # .xinitrc for the root user in the live env
+  # .xinitrc for the root user: startx → ratpoison
   environment.etc."skel/.xinitrc".text = ''
     #!/bin/sh
     xsetroot -cursor_name left_ptr
@@ -74,7 +77,8 @@
         5. Edit:        nano /mnt/etc/nixos/configuration.nix
                         (or copy the template and adjust FIXMEs)
         6. Install:     nixos-install
-        7. Reboot, then: nix run home-manager -- switch -f ~/home.nix
+        7. Reboot, then apply home config:
+                        nix run home-manager -- switch -f ~/home.nix
     '';
 
     "brave-origin-templates/configuration.nix".text =
@@ -84,7 +88,7 @@
       builtins.readFile ./home-template.nix;
   };
 
-  # ── Flake registry so the user can reference brave-origin-nix ─────────
+  # ── Flake registry so users can reference brave-origin-nix ────────────
   nix.registry.brave-origin-nix = {
     from = { type = "indirect"; id = "brave-origin-nix"; };
     to   = { type = "github"; owner = "legendarymsr"; repo = "brave-origin-nix"; };

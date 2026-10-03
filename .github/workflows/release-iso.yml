@@ -86,21 +86,15 @@ jobs:
           ls -lh result/iso/
         timeout-minutes: 120
 
-      # ── Copy, checksum, split ─────────────────────────────────────────
-      # GitHub release assets are capped at 2 GB.  NixOS minimal ISOs
-      # are ~2.3 GB so we split into 1.9 GB parts.  Reassemble with:
-      #   cat brave-origin-installer.iso.part* > brave-origin-installer.iso
-      #   sha256sum -c brave-origin-installer.iso.sha256
+      # ── Copy + checksum ───────────────────────────────────────────────
       - name: Prepare release assets
         run: |
           ls -lh result/iso/
           ISO=$(find result/iso -name "*.iso" | head -1)
           echo "Found ISO: $ISO"
           cp "$ISO" brave-origin-installer.iso
-          echo "Size: $(du -sh brave-origin-installer.iso | cut -f1)"
           sha256sum brave-origin-installer.iso | tee brave-origin-installer.iso.sha256
-          split -b 1900m --suffix-length=2 brave-origin-installer.iso brave-origin-installer.iso.part
-          ls -lh brave-origin-installer.iso.part*
+          echo "Size: $(du -sh brave-origin-installer.iso | cut -f1)"
 
       # ── Determine release tag ─────────────────────────────────────────
       - name: Set release tag
@@ -136,26 +130,18 @@ jobs:
             - Install templates at `/etc/brave-origin-templates/`
             - `brave-origin-nix` registered in the flake registry
 
-            ### Download and reassemble
-            The ISO is split into parts (GitHub's 2 GB asset limit). Download all `*.partXX` files and the `.sha256`, then:
+            ### Write to USB
             ```sh
-            # Reassemble
-            cat brave-origin-installer.iso.part* > brave-origin-installer.iso
-
-            # Verify
-            sha256sum -c brave-origin-installer.iso.sha256
-
-            # Write to USB (replace sdX with your drive)
             sudo dd if=brave-origin-installer.iso of=/dev/sdX bs=4M status=progress oflag=sync
             ```
 
-            Or pipe directly to USB without reassembling:
+            ### Verify
             ```sh
-            cat brave-origin-installer.iso.part* | sudo dd of=/dev/sdX bs=4M status=progress
+            sha256sum -c brave-origin-installer.iso.sha256
             ```
 
             ### After booting
             See `/etc/brave-origin-templates/README`, or the [repo README](https://github.com/legendarymsr/brave-origin-nix).
           files: |
-            brave-origin-installer.iso.part*
+            brave-origin-installer.iso
             brave-origin-installer.iso.sha256
