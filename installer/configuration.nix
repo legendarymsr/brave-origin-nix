@@ -88,8 +88,7 @@
     parted
     gptfdisk
     curl
-    (pkgs.writeShellScriptBin "brave-origin-install"
-      (builtins.readFile ./brave-origin-install))
+    (pkgs.callPackage ./brave-origin-install.nix {})
   ];
 
   # ── Template configs seeded on the ISO ────────────────────────────────

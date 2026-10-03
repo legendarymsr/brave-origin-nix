@@ -65,6 +65,7 @@
             brave-origin = brave-origin;
             default      = brave-origin;
             update       = pkgs.callPackage ./update.nix {};
+            brave-origin-install = pkgs.callPackage ./installer/brave-origin-install.nix {};
           };
           nixosModules.brave-origin       = import ./modules/nixos.nix    { inherit brave-origin; };
           nixosModules.xfce               = import ./modules/xfce.nix;
