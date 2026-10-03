@@ -15,7 +15,7 @@
 #   rest   /     (root, ext4)
 #
 # Disk tools come from runtimeInputs; nixos-generate-config, nixos-install,
-# nixos-enter and timedatectl come from the live system's PATH.
+# nixos-enter, timedatectl and udevadm come from the live system's PATH.
 { writeShellApplication, gptfdisk, parted, dosfstools, e2fsprogs, util-linux }:
 
 writeShellApplication {
@@ -95,25 +95,31 @@ writeShellApplication {
     echo
 
     bold "[ 1/7 ] Partitioning $DISK…"
+    # Re-runs: let go of anything a previous attempt left mounted.
+    umount -R /mnt 2>/dev/null || true
+    swapoff "$SWAP" 2>/dev/null || true
     sgdisk --zap-all "$DISK"
     sgdisk --new=1:0:+1G   --typecode=1:ef00 --change-name=1:"EFI"      "$DISK"
     sgdisk --new=2:0:+4G   --typecode=2:8200 --change-name=2:"swap"     "$DISK"
     sgdisk --new=3:0:+4G   --typecode=3:8300 --change-name=3:"nix"      "$DISK"
     sgdisk --new=4:0:0     --typecode=4:8300 --change-name=4:"NixOS"    "$DISK"
     partprobe "$DISK"
-    sleep 1
+    udevadm settle || sleep 2
 
     bold "[ 2/7 ] Formatting…"
     mkfs.vfat -F32 -n EFI   "$EFI"
     mkswap    -L   swap      "$SWAP"
-    mkfs.ext4 -L   nix       "$STORE"
-    mkfs.ext4 -L   NixOS     "$ROOT"
+    mkfs.ext4 -F -L nix      "$STORE"
+    mkfs.ext4 -F -L NixOS    "$ROOT"
+    # udev re-probes the new filesystems; until it is done, type
+    # autodetection in mount can fail, so wait and name the types.
+    udevadm settle || sleep 2
 
     bold "[ 3/7 ] Mounting…"
-    mount "$ROOT"  /mnt
+    mount -t ext4 "$ROOT"  /mnt
     mkdir -p /mnt/boot/efi /mnt/nix
-    mount "$EFI"   /mnt/boot/efi
-    mount "$STORE" /mnt/nix
+    mount -t vfat "$EFI"   /mnt/boot/efi
+    mount -t ext4 "$STORE" /mnt/nix
     swapon "$SWAP"
 
     bold "[ 4/7 ] Generating hardware configuration…"
