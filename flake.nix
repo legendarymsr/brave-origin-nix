@@ -17,6 +17,8 @@
         brave-origin = brave-origin;
         default      = brave-origin;
         update       = pkgs.callPackage ./update.nix {};
+        # The live ISO's one-command installer (run it as root on the ISO).
+        brave-origin-install = pkgs.callPackage ./installer/brave-origin-install.nix {};
       };
       nixosModules.brave-origin = import ./modules/nixos.nix { inherit brave-origin; };
       nixosModules.xfce         = import ./modules/xfce.nix;
