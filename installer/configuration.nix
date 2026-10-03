@@ -11,8 +11,7 @@
 #   sudo dd if=result/iso/brave-origin-installer.iso \
 #            of=/dev/sdX bs=4M status=progress oflag=sync
 #
-# After booting, run nixos-install with your own configuration.nix, or
-# use the templates in /etc/brave-origin-templates/ as a starting point.
+# After booting, run: brave-origin-install /dev/sdX
 {
   imports = [
     "${modulesPath}/installer/cd-dvd/installation-cd-minimal.nix"
@@ -24,38 +23,23 @@
   i18n.defaultLocale  = "en_US.UTF-8";
 
   # ── Shrink the ISO below GitHub's 2 GB release-asset limit ────────────
-  # ZFS kernel modules alone add ~300 MB; we don't need them for install.
+  # Remove ZFS modules (~300 MB) and Xorg (~400 MB) — neither needed
+  # for a terminal-only installer.
   boot.supportedFilesystems = lib.mkOverride 10 [ "ext4" "vfat" "btrfs" "xfs" "ntfs" ];
   boot.kernelModules        = lib.mkForce [];
 
+  services.xserver.enable = lib.mkForce false;
+
   # ── Live-environment packages ──────────────────────────────────────────
-  # brave-origin is NOT in the live env — nixos-install fetches it.
+  # Minimal set — only what the install script needs.
+  # brave-origin NOT here; nixos-install fetches it from GitHub.
   environment.systemPackages = with pkgs; [
-    ratpoison
-    xterm
-    xorg.xsetroot
     parted
     gptfdisk
-    git
     curl
-    htop
-    dejavu_fonts
     (pkgs.writeShellScriptBin "brave-origin-install"
       (builtins.readFile ./brave-origin-install))
   ];
-
-  # ── Xorg available in the live env ────────────────────────────────────
-  services.xserver = {
-    enable                         = true;
-    windowManager.ratpoison.enable = true;
-  };
-
-  # .xinitrc for the root user: startx → ratpoison
-  environment.etc."skel/.xinitrc".text = ''
-    #!/bin/sh
-    xsetroot -cursor_name left_ptr
-    exec ratpoison
-  '';
 
   # ── Template configs seeded on the ISO ────────────────────────────────
   environment.etc = {
