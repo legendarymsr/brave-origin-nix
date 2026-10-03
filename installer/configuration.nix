@@ -64,19 +64,28 @@
 
       Files in this directory:
 
-        configuration.nix — NixOS system configuration
-                            Copy to /mnt/etc/nixos/configuration.nix and edit.
+        configuration.nix — flake.nix for the target system
+                            (rename it to flake.nix when you copy it)
         home.nix          — home-manager configuration
+
+      Brave Origin and all packages are fetched from the internet during
+      nixos-install — nothing heavy lives on this ISO.
 
       Quick install:
 
         1. Partition:   cfdisk /dev/sdX
-        2. Format:      mkfs.ext4 /dev/sdXn
-        3. Mount:       mount /dev/sdXn /mnt
+        2. Format root: mkfs.ext4 /dev/sdX2
+                        (mkfs.vfat /dev/sdX1 for EFI)
+        3. Mount:       mount /dev/sdX2 /mnt
+                        mkdir -p /mnt/boot/efi
+                        mount /dev/sdX1 /mnt/boot/efi
         4. Generate:    nixos-generate-config --root /mnt
-        5. Edit:        nano /mnt/etc/nixos/configuration.nix
-                        (or copy the template and adjust FIXMEs)
-        6. Install:     nixos-install
+        5. Copy template:
+                        cp /etc/brave-origin-templates/configuration.nix \
+                           /mnt/etc/nixos/flake.nix
+                        nano /mnt/etc/nixos/flake.nix  (fill in FIXMEs)
+        6. Install:     nixos-install --flake /mnt/etc/nixos#system
+           (brave-origin is downloaded from GitHub during this step)
         7. Reboot, then apply home config:
                         nix run home-manager -- switch -f ~/home.nix
     '';
