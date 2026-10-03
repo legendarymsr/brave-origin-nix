@@ -22,6 +22,10 @@
       };
       nixosModules.brave-origin = import ./modules/nixos.nix { inherit brave-origin; };
       nixosModules.xfce         = import ./modules/xfce.nix;
+      # System-wide Nixvim with a small config (Tokyo Night, tree-sitter).
+      nixosModules.nixvim       = {
+        imports = [ nixvim.nixosModules.nixvim (import ./modules/nixvim-nixos.nix { inherit nixpkgs; }) ];
+      };
       homeModules.brave-origin  = import ./modules/home.nix  { inherit brave-origin; };
       homeModules.xfce          = import ./modules/xfce-home.nix;
       homeModules.nixvim        = {
@@ -39,6 +43,7 @@
         modules = [
           self.nixosModules.brave-origin
           self.nixosModules.xfce
+          self.nixosModules.nixvim
           ./installer/configuration.nix
         ];
       };
