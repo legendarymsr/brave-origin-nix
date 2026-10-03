@@ -95,6 +95,12 @@ jobs:
           cp "$ISO" brave-origin-installer.iso
           sha256sum brave-origin-installer.iso | tee brave-origin-installer.iso.sha256
           echo "Size: $(du -sh brave-origin-installer.iso | cut -f1)"
+          # GitHub rejects release assets of 2 GiB or more; fail here, clearly.
+          SIZE=$(stat -c %s brave-origin-installer.iso)
+          if (( SIZE >= 2147483648 )); then
+            echo "::error::ISO is $SIZE bytes, over GitHub's 2 GiB release-asset limit"
+            exit 1
+          fi
 
       # ── Determine release tag ─────────────────────────────────────────
       - name: Set release tag
@@ -122,11 +128,12 @@ jobs:
           body: |
             ## Brave Origin NixOS Installer ISO
 
-            Custom NixOS installer with Brave Origin (nightly), Ratpoison, and config templates pre-loaded.
+            Live NixOS ISO that boots straight into XFCE (LightDM autologin as `nixos`)
+            with Brave Origin (nightly) open, plus the one-command installer.
 
             ### What's included
-            - Brave Origin nightly available immediately after boot
-            - Ratpoison + xterm in the live environment (`startx` to launch)
+            - Live XFCE desktop; Brave Origin nightly (setuid chrome-sandbox) opens on login
+            - One-command installer: `sudo brave-origin-install /dev/sdX` (installs NixOS + XFCE + LightDM + Brave Origin)
             - Install templates at `/etc/brave-origin-templates/`
             - `brave-origin-nix` registered in the flake registry
 
