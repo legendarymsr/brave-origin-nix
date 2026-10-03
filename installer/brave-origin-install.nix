@@ -11,8 +11,7 @@
 # Partition layout:
 #   1 GB   EFI   (FAT32, /boot/efi)
 #   4 GB   swap
-#   4 GB   /nix  (Nix store)
-#   rest   /     (root, ext4)
+#   rest   /     (root, ext4; holds /nix too)
 #
 # Disk tools come from runtimeInputs; nixos-generate-config, nixos-install,
 # nix, nixos-enter, timedatectl and udevadm come from the live system's PATH.
@@ -34,7 +33,7 @@ writeShellApplication {
     case "''${1:-}" in
       -h|--help)
         usage
-        echo "  Partitions /dev/sdX (1 GB EFI, 4 GB swap, 4 GB /nix, rest /),"
+        echo "  Partitions /dev/sdX (1 GB EFI, 4 GB swap, rest /),"
         echo "  installs NixOS with XFCE + LightDM and Brave Origin. ERASES THE DISK."
         exit 0 ;;
     esac
@@ -53,8 +52,7 @@ writeShellApplication {
 
     EFI="$(P 1)"
     SWAP="$(P 2)"
-    STORE="$(P 3)"
-    ROOT="$(P 4)"
+    ROOT="$(P 3)"
 
     bold "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
     bold " Brave Origin NixOS Installer"
@@ -64,8 +62,7 @@ writeShellApplication {
     yellow "  Layout:"
     yellow "    $(P 1)  →  1 GB   EFI   (FAT32, /boot/efi)"
     yellow "    $(P 2)  →  4 GB   swap"
-    yellow "    $(P 3)  →  4 GB   /nix  (Nix store)"
-    yellow "    $(P 4)  →  rest   /     (root, ext4)"
+    yellow "    $(P 3)  →  rest   /     (root, ext4; holds /nix too)"
     echo
     red    "  ALL DATA ON $DISK WILL BE DESTROYED."
     echo
@@ -101,15 +98,15 @@ writeShellApplication {
     sgdisk --zap-all "$DISK"
     sgdisk --new=1:0:+1G   --typecode=1:ef00 --change-name=1:"EFI"      "$DISK"
     sgdisk --new=2:0:+4G   --typecode=2:8200 --change-name=2:"swap"     "$DISK"
-    sgdisk --new=3:0:+4G   --typecode=3:8300 --change-name=3:"nix"      "$DISK"
-    sgdisk --new=4:0:0     --typecode=4:8300 --change-name=4:"NixOS"    "$DISK"
+    # No separate /nix: the installed XFCE system alone is ~4 GB, so the
+    # old 4 GB store partition filled up during nixos-install.
+    sgdisk --new=3:0:0     --typecode=3:8300 --change-name=3:"NixOS"    "$DISK"
     partprobe "$DISK"
     udevadm settle || sleep 2
 
     bold "[ 2/7 ] Formatting…"
     mkfs.vfat -F32 -n EFI   "$EFI"
     mkswap    -L   swap      "$SWAP"
-    mkfs.ext4 -F -L nix      "$STORE"
     mkfs.ext4 -F -L NixOS    "$ROOT"
     # udev re-probes the new filesystems; until it is done, type
     # autodetection in mount can fail, so wait and name the types.
@@ -117,9 +114,8 @@ writeShellApplication {
 
     bold "[ 3/7 ] Mounting…"
     mount -t ext4 "$ROOT"  /mnt
-    mkdir -p /mnt/boot/efi /mnt/nix
+    mkdir -p /mnt/boot/efi
     mount -t vfat "$EFI"   /mnt/boot/efi
-    mount -t ext4 "$STORE" /mnt/nix
     swapon "$SWAP"
 
     bold "[ 4/7 ] Generating hardware configuration…"
