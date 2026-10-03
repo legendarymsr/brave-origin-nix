@@ -28,12 +28,15 @@
       # Backwards-compatible alias (older name for the same modules).
       homeManagerModules = self.homeModules;
 
-      # Custom installer ISO
+      # Live + installer ISO: boots straight into XFCE (LightDM autologin as
+      # `nixos`) with Brave Origin ready; `brave-origin-install` installs.
       # Build: nix build .#nixosConfigurations.installer.config.system.build.isoImage
       nixosConfigurations.installer = nixpkgs.lib.nixosSystem {
         inherit system;
         specialArgs = { inherit brave-origin; };
         modules = [
+          self.nixosModules.brave-origin
+          self.nixosModules.xfce
           ./installer/configuration.nix
         ];
       };
