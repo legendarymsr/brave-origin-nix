@@ -15,7 +15,7 @@
 #   rest   /     (root, ext4)
 #
 # Disk tools come from runtimeInputs; nixos-generate-config, nixos-install,
-# nixos-enter, timedatectl and udevadm come from the live system's PATH.
+# nix, nixos-enter, timedatectl and udevadm come from the live system's PATH.
 { writeShellApplication, gptfdisk, parted, dosfstools, e2fsprogs, util-linux }:
 
 writeShellApplication {
@@ -186,6 +186,10 @@ writeShellApplication {
     FLAKE
 
     bold "[ 6/7 ] Running nixos-install (Brave Origin fetched from GitHub)…"
+    # Write flake.lock first: if nixos-install has to create it, the
+    # path:/mnt/etc/nixos input changes under it ("NAR hash mismatch").
+    nix --extra-experimental-features "nix-command flakes" \
+      flake lock /mnt/etc/nixos
     nixos-install \
       --flake /mnt/etc/nixos#system \
       --no-root-passwd \
