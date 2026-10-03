@@ -89,7 +89,10 @@ jobs:
       # ── Copy + checksum ───────────────────────────────────────────────
       - name: Prepare release assets
         run: |
-          cp result/iso/brave-origin-installer.iso brave-origin-installer.iso
+          ls -lh result/iso/
+          ISO=$(find result/iso -name "*.iso" | head -1)
+          echo "Found ISO: $ISO"
+          cp "$ISO" brave-origin-installer.iso
           sha256sum brave-origin-installer.iso | tee brave-origin-installer.iso.sha256
           echo "Size: $(du -sh brave-origin-installer.iso | cut -f1)"
 
