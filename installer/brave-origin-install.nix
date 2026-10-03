@@ -141,6 +141,8 @@ writeShellApplication {
           modules = [
             ./hardware-configuration.nix
             brave-origin-nix.nixosModules.brave-origin
+            # Neovim with a small config (Tokyo Night, tree-sitter); EDITOR=nvim.
+            brave-origin-nix.nixosModules.nixvim
             ({ config, pkgs, lib, ... }: {
 
               boot.loader.systemd-boot.enable      = true;
