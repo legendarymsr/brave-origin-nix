@@ -88,6 +88,7 @@
     parted
     gptfdisk
     curl
+    fastfetch
     (pkgs.callPackage ./brave-origin-install.nix {})
   ];
 
