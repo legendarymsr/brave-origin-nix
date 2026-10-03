@@ -46,7 +46,14 @@
   xdg.mime.enable      = true;
   xdg.sounds.enable    = true;
   services.udisks2.enable = true;           # Thunar volume management
-  fonts.enableDefaultPackages = true;
+  # The minimal ISO profile turns fontconfig off; without its config
+  # "monospace" does not resolve to DejaVu Sans Mono and xfce4-terminal
+  # draws with a proportional font (garbled fastfetch/ncurses output).
+  # Only DejaVu: the default font set (CJK, unifont, ...) adds ~190 MB
+  # and the ISO has to stay under 2 GiB.
+  fonts.fontconfig.enable = true;
+  fonts.enableDefaultPackages = false;
+  fonts.packages = [ pkgs.dejavu_fonts ];
 
   # ── Brave Origin (nixosModules.brave-origin) ──────────────────────────
   programs.brave-origin.enable = true;      # package + setuid chrome-sandbox
