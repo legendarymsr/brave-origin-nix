@@ -18,14 +18,24 @@
         default      = brave-origin;
         update       = pkgs.callPackage ./update.nix {};
       };
-      nixosModules.brave-origin       = import ./modules/nixos.nix    { inherit brave-origin; };
-      nixosModules.xfce               = import ./modules/xfce.nix;
-      homeModules.brave-origin = import ./modules/home.nix     { inherit brave-origin; };
-      homeModules.xfce         = import ./modules/xfce-home.nix;
-      homeModules.nixvim       = {
+      nixosModules.brave-origin = import ./modules/nixos.nix { inherit brave-origin; };
+      nixosModules.xfce         = import ./modules/xfce.nix;
+      homeModules.brave-origin  = import ./modules/home.nix  { inherit brave-origin; };
+      homeModules.xfce          = import ./modules/xfce-home.nix;
+      homeModules.nixvim        = {
         imports = [ nixvim.homeModules.nixvim (import ./modules/nixvim.nix { inherit nixpkgs; }) ];
       };
       # Backwards-compatible alias (older name for the same modules).
       homeManagerModules = self.homeModules;
+
+      # Custom installer ISO
+      # Build: nix build .#nixosConfigurations.installer.config.system.build.isoImage
+      nixosConfigurations.installer = nixpkgs.lib.nixosSystem {
+        inherit system;
+        specialArgs = { inherit brave-origin; };
+        modules = [
+          ./installer/configuration.nix
+        ];
+      };
     };
 }

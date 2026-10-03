@@ -1,0 +1,144 @@
+name: Build and release installer ISO
+
+on:
+  push:
+    tags:
+      - 'v*.*.*'
+
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: 'Release tag (e.g. v1.0.0 or nightly)'
+        required: true
+        default: 'nightly'
+      prerelease:
+        description: 'Mark as pre-release?'
+        required: false
+        default: 'false'
+
+  # Nightly — comment out if you don't want scheduled releases
+  schedule:
+    - cron: '0 3 * * 1'   # every Monday at 03:00 UTC
+
+jobs:
+  build-iso:
+    name: Build ISO
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: write
+
+    steps:
+      # ── Checkout ──────────────────────────────────────────────────────
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      # ── Install Nix ───────────────────────────────────────────────────
+      # cachix/install-nix-action installs Nix with flakes enabled and
+      # configures the official binary cache so we don't build everything
+      # from source.
+      - name: Install Nix
+        uses: cachix/install-nix-action@v27
+        with:
+          nix_path: nixpkgs=channel:nixos-unstable
+          extra_nix_config: |
+            experimental-features = nix-command flakes
+            accept-flake-config   = true
+            max-jobs              = auto
+            cores                 = 0
+
+      # ── Binary cache (optional but strongly recommended) ──────────────
+      # Sign up free at cachix.org; create a cache called brave-origin-nix,
+      # then add CACHIX_AUTH_TOKEN to your repo secrets.
+      # Remove this step if you don't have a Cachix account.
+      - name: Configure Cachix
+        uses: cachix/cachix-action@v15
+        with:
+          name: brave-origin-nix
+          authToken: '${{ secrets.CACHIX_AUTH_TOKEN }}'
+        continue-on-error: true   # skip gracefully if secret is not set
+
+      # ── Cache Nix store ───────────────────────────────────────────────
+      - name: Cache Nix store
+        uses: actions/cache@v4
+        with:
+          path: /nix
+          key: nix-store-${{ runner.os }}-${{ hashFiles('flake.lock', 'installer/configuration.nix') }}
+          restore-keys: |
+            nix-store-${{ runner.os }}-
+
+      # ── Free up disk space ────────────────────────────────────────────
+      # NixOS ISO builds need several GB; remove runner pre-installs.
+      - name: Free up disk space
+        run: |
+          df -h
+          sudo rm -rf /usr/local/lib/android /opt/ghc /usr/share/dotnet || true
+          df -h
+
+      # ── Build ISO ─────────────────────────────────────────────────────
+      # Outputs to result/iso/brave-origin-installer.iso
+      - name: Build installer ISO
+        run: |
+          nix build \
+            .#nixosConfigurations.installer.config.system.build.isoImage \
+            --out-link result \
+            --print-build-logs
+          ls -lh result/iso/
+        timeout-minutes: 120
+
+      # ── Copy + checksum ───────────────────────────────────────────────
+      - name: Prepare release assets
+        run: |
+          cp result/iso/brave-origin-installer.iso brave-origin-installer.iso
+          sha256sum brave-origin-installer.iso | tee brave-origin-installer.iso.sha256
+          echo "Size: $(du -sh brave-origin-installer.iso | cut -f1)"
+
+      # ── Determine release tag ─────────────────────────────────────────
+      - name: Set release tag
+        id: tag
+        run: |
+          if [[ "${{ github.event_name }}" == "push" ]]; then
+            echo "tag=${{ github.ref_name }}" >> "$GITHUB_OUTPUT"
+          elif [[ "${{ github.event_name }}" == "workflow_dispatch" ]]; then
+            echo "tag=${{ inputs.tag }}" >> "$GITHUB_OUTPUT"
+          else
+            echo "tag=nightly-$(date -u +%Y%m%d)" >> "$GITHUB_OUTPUT"
+          fi
+
+      # ── Create GitHub release ─────────────────────────────────────────
+      - name: Create release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ steps.tag.outputs.tag }}
+          name: Brave Origin NixOS Installer ${{ steps.tag.outputs.tag }}
+          prerelease: >-
+            ${{
+              github.event_name == 'schedule' ||
+              (github.event_name == 'workflow_dispatch' && inputs.prerelease == 'true')
+            }}
+          body: |
+            ## Brave Origin NixOS Installer ISO
+
+            Custom NixOS installer with Brave Origin (nightly), Ratpoison, and config templates pre-loaded.
+
+            ### What's included
+            - Brave Origin nightly available immediately after boot
+            - Ratpoison + xterm in the live environment (`startx` to launch)
+            - Install templates at `/etc/brave-origin-templates/`
+            - `brave-origin-nix` registered in the flake registry
+
+            ### Write to USB
+            ```sh
+            sudo dd if=brave-origin-installer.iso of=/dev/sdX bs=4M status=progress oflag=sync
+            ```
+
+            ### Verify
+            ```sh
+            sha256sum -c brave-origin-installer.iso.sha256
+            ```
+
+            ### After booting
+            See `/etc/brave-origin-templates/README`, or the [repo README](https://github.com/legendarymsr/brave-origin-nix).
+          files: |
+            brave-origin-installer.iso
+            brave-origin-installer.iso.sha256
