@@ -172,7 +172,7 @@ writeShellApplication {
               };
 
               environment.systemPackages = with pkgs; [
-                git curl htop
+                git curl htop fastfetch
                 thunar xfce4-terminal
               ];
 
