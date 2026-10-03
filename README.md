@@ -2,6 +2,8 @@
 
 Brave Origin (nightly) browser packaged as a Nix flake.
 
+![Installed Brave Origin NixOS: XFCE with fastfetch, Nixvim editing flake.nix, and Brave Origin](screenshots/showcase.png)
+
 > The README is also available as a `.nix` file because everything is a `.nix` file.
 
 ---
