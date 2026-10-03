@@ -1,5 +1,10 @@
 { config, pkgs, lib, modulesPath, brave-origin, ... }:
-# Custom NixOS installer ISO — Brave Origin channel pre-configured.
+# Brave Origin NixOS live + installer ISO.
+#
+# Boots straight into XFCE (LightDM autologin as `nixos`, no password) with
+# Brave Origin nightly installed system-wide (setuid chrome-sandbox via
+# nixosModules.brave-origin) and opened on login.  The desktop comes from
+# this flake's own nixosModules.xfce; both modules are added in flake.nix.
 #
 # Build:
 #   nix build .#nixosConfigurations.installer.config.system.build.isoImage
@@ -11,7 +16,8 @@
 #   sudo dd if=result/iso/brave-origin-installer.iso \
 #            of=/dev/sdX bs=4M status=progress oflag=sync
 #
-# After booting, run: brave-origin-install /dev/sdX
+# To install from the live desktop, open a terminal and run:
+#   sudo brave-origin-install /dev/sdX
 {
   imports = [
     "${modulesPath}/installer/cd-dvd/installation-cd-minimal.nix"
@@ -22,17 +28,59 @@
   time.timeZone       = "UTC";
   i18n.defaultLocale  = "en_US.UTF-8";
 
-  # ── Shrink the ISO below GitHub's 2 GB release-asset limit ────────────
-  # Remove ZFS modules (~300 MB) and Xorg (~400 MB) — neither needed
-  # for a terminal-only installer.
+  # ── Live desktop: XFCE from nixosModules.xfce ──────────────────────
+  desktop.xfce.enable = true;               # LightDM is the module default
+  services.displayManager = {
+    defaultSession     = "xfce";
+    autoLogin.enable   = true;
+    autoLogin.user     = "nixos";           # the live user from installation-cd-base
+  };
+
+  # installation-cd-minimal pulls in profiles/minimal.nix, which turns off
+  # the XDG bits a desktop needs (icons, MIME, autostart) — turn them back on.
+  xdg.autostart.enable = true;
+  xdg.icons.enable     = true;
+  xdg.mime.enable      = true;
+  xdg.sounds.enable    = true;
+  services.udisks2.enable = true;           # Thunar volume management
+  fonts.enableDefaultPackages = true;
+
+  # ── Brave Origin (nixosModules.brave-origin) ──────────────────────────
+  programs.brave-origin.enable = true;      # package + setuid chrome-sandbox
+
+  # Open Brave Origin when the live session starts.  The live user is
+  # autologged in, so there is no login password to unlock a keyring with;
+  # --password-store=basic skips the "choose password for new keyring" prompt.
+  environment.etc."xdg/autostart/brave-origin.desktop".text = ''
+    [Desktop Entry]
+    Type=Application
+    Name=Brave Origin
+    Exec=${brave-origin}/bin/brave-origin --password-store=basic --start-maximized
+    Icon=brave-origin
+    X-GNOME-Autostart-enabled=true
+  '';
+
+  # ── Keep the ISO small enough for a GitHub release asset (< 2 GiB) ───
+  # No ZFS on the live medium (~300 MB); it is fetched by nixos-install if
+  # the installed system wants it.
   boot.supportedFilesystems = lib.mkOverride 10 [ "ext4" "vfat" "btrfs" "xfs" "ntfs" ];
   boot.kernelModules        = lib.mkForce [];
 
-  services.xserver.enable = lib.mkForce false;
+  # Desktop extras that are not worth ~1 GB on a live medium:
+  services.speechd.enable  = false;                # speech-dispatcher + mbrola voices + python
+  services.orca.enable     = false;
+  environment.xfce.excludePackages = [ pkgs.parole ];  # media player → gst-plugins-bad
+  services.tumbler.enable  = lib.mkForce false;    # thumbnailer → libgepub → webkitgtk
+  xdg.portal.extraPortals  = lib.mkForce [ pkgs.xdg-desktop-portal-gtk ];  # not xapp → mate-panel
+  # No copy of nixpkgs on the ISO (registry / NIX_PATH / channel): the
+  # installer builds the target from the flake on GitHub anyway.
+  nixpkgs.flake.setFlakeRegistry = false;
+  nixpkgs.flake.setNixPath       = false;
+  system.installer.channel.enable = false;
 
   # ── Live-environment packages ──────────────────────────────────────────
-  # Minimal set — only what the install script needs.
-  # brave-origin NOT here; nixos-install fetches it from GitHub.
+  # Brave Origin comes from programs.brave-origin above; XFCE apps from
+  # nixosModules.xfce.
   environment.systemPackages = with pkgs; [
     parted
     gptfdisk
@@ -47,20 +95,19 @@
       Brave Origin NixOS Installer
       =============================
 
+      This ISO is a live XFCE desktop with Brave Origin (nightly).
       One command installs everything — partitions, formats, and installs
-      NixOS with Brave Origin.  Brave Origin is fetched from GitHub during
-      the install, not from this ISO.
+      NixOS with XFCE + LightDM and Brave Origin.
 
-      Usage:
+      Usage (in a terminal):
 
-        brave-origin-install /dev/sdX
+        sudo brave-origin-install /dev/sdX
 
       (Use lsblk to find your disk name before running.)
 
       The script asks for: username, password, hostname, timezone.
       After it finishes: remove the USB and reboot.
-      Log in, then run `startx' to launch Ratpoison.
-      Brave Origin: C-t b inside Ratpoison.
+      LightDM login screen → XFCE desktop, Brave Origin in the menu.
     '';
 
     "brave-origin-templates/home.nix".text =
@@ -74,11 +121,11 @@
   };
 
   # ── ISO metadata ───────────────────────────────────────────────────────
+  image.fileName = lib.mkForce "brave-origin-installer.iso";
+  image.baseName = lib.mkForce "brave-origin-installer";
   isoImage = {
-    isoName             = lib.mkForce "brave-origin-installer.iso";
-    isoBaseName         = lib.mkForce "brave-origin-installer";
     makeEfiBootable     = true;
     makeUsbBootable     = true;
-    squashfsCompression = "zstd -Xcompression-level 6";
+    squashfsCompression = "xz -Xdict-size 100% -Xbcj x86";
   };
 }
