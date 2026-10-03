@@ -29,8 +29,7 @@
   boot.kernelModules        = lib.mkForce [];
 
   # ── Live-environment packages ──────────────────────────────────────────
-  # brave-origin is NOT included in the live env — it gets installed on the
-  # target system by nixos-install.  Keeping it out saves ~400 MB on the ISO.
+  # brave-origin is NOT in the live env — nixos-install fetches it.
   environment.systemPackages = with pkgs; [
     ratpoison
     xterm
@@ -41,6 +40,8 @@
     curl
     htop
     dejavu_fonts
+    (pkgs.writeShellScriptBin "brave-origin-install"
+      (builtins.readFile ./brave-origin-install))
   ];
 
   # ── Xorg available in the live env ────────────────────────────────────
@@ -59,39 +60,24 @@
   # ── Template configs seeded on the ISO ────────────────────────────────
   environment.etc = {
     "brave-origin-templates/README".text = ''
-      Brave Origin NixOS templates
+      Brave Origin NixOS Installer
       =============================
 
-      Files in this directory:
+      One command installs everything — partitions, formats, and installs
+      NixOS with Brave Origin.  Brave Origin is fetched from GitHub during
+      the install, not from this ISO.
 
-        configuration.nix — flake.nix for the target system
-                            (rename it to flake.nix when you copy it)
-        home.nix          — home-manager configuration
+      Usage:
 
-      Brave Origin and all packages are fetched from the internet during
-      nixos-install — nothing heavy lives on this ISO.
+        brave-origin-install /dev/sdX
 
-      Quick install:
+      (Use lsblk to find your disk name before running.)
 
-        1. Partition:   cfdisk /dev/sdX
-        2. Format root: mkfs.ext4 /dev/sdX2
-                        (mkfs.vfat /dev/sdX1 for EFI)
-        3. Mount:       mount /dev/sdX2 /mnt
-                        mkdir -p /mnt/boot/efi
-                        mount /dev/sdX1 /mnt/boot/efi
-        4. Generate:    nixos-generate-config --root /mnt
-        5. Copy template:
-                        cp /etc/brave-origin-templates/configuration.nix \
-                           /mnt/etc/nixos/flake.nix
-                        nano /mnt/etc/nixos/flake.nix  (fill in FIXMEs)
-        6. Install:     nixos-install --flake /mnt/etc/nixos#system
-           (brave-origin is downloaded from GitHub during this step)
-        7. Reboot, then apply home config:
-                        nix run home-manager -- switch -f ~/home.nix
+      The script asks for: username, password, hostname, timezone.
+      After it finishes: remove the USB and reboot.
+      Log in, then run `startx' to launch Ratpoison.
+      Brave Origin: C-t b inside Ratpoison.
     '';
-
-    "brave-origin-templates/configuration.nix".text =
-      builtins.readFile ./system-template.nix;
 
     "brave-origin-templates/home.nix".text =
       builtins.readFile ./home-template.nix;
