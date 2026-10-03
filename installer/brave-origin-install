@@ -8,15 +8,8 @@
 # Partition layout:
 #   1 GB   EFI   (FAT32, /boot/efi)
 #   4 GB   swap
-#   4 GB   /nix  (Nix store — keeps root small and clean)
+#   4 GB   /nix  (Nix store)
 #   rest   /     (root, ext4)
-#
-# What it does:
-#   1. Wipes and partitions the target disk
-#   2. Formats and mounts all partitions
-#   3. Runs nixos-generate-config
-#   4. Writes a complete flake.nix (answers filled in automatically)
-#   5. Runs nixos-install — Brave Origin fetched here, not from the ISO
 #
 set -euo pipefail
 
@@ -32,7 +25,6 @@ DISK="${1:-}"
 [[ -n "$DISK" ]] || { bold "Usage: brave-origin-install /dev/sdX"; exit 1; }
 [[ -b "$DISK" ]] || die "$DISK is not a block device"
 
-# Partition name suffix: nvme/mmcblk use p1/p2/p3/p4, sata uses 1/2/3/4
 if [[ "$DISK" =~ nvme|mmcblk ]]; then
   P() { echo "${DISK}p${1}"; }
 else
@@ -82,7 +74,6 @@ echo
 green "Starting installation…"
 echo
 
-# ── 1. Partition ──────────────────────────────────────────────────────────────
 bold "[ 1/7 ] Partitioning $DISK…"
 sgdisk --zap-all "$DISK"
 sgdisk --new=1:0:+1G   --typecode=1:ef00 --change-name=1:"EFI"      "$DISK"
@@ -92,14 +83,12 @@ sgdisk --new=4:0:0     --typecode=4:8300 --change-name=4:"NixOS"    "$DISK"
 partprobe "$DISK"
 sleep 1
 
-# ── 2. Format ─────────────────────────────────────────────────────────────────
 bold "[ 2/7 ] Formatting…"
 mkfs.vfat -F32 -n EFI   "$EFI"
 mkswap    -L   swap      "$SWAP"
 mkfs.ext4 -L   nix       "$STORE"
 mkfs.ext4 -L   NixOS     "$ROOT"
 
-# ── 3. Mount ──────────────────────────────────────────────────────────────────
 bold "[ 3/7 ] Mounting…"
 mount "$ROOT"  /mnt
 mkdir -p /mnt/boot/efi /mnt/nix
@@ -107,11 +96,9 @@ mount "$EFI"   /mnt/boot/efi
 mount "$STORE" /mnt/nix
 swapon "$SWAP"
 
-# ── 4. Generate hardware config ───────────────────────────────────────────────
 bold "[ 4/7 ] Generating hardware configuration…"
 nixos-generate-config --root /mnt
 
-# ── 5. Write flake.nix ────────────────────────────────────────────────────────
 bold "[ 5/7 ] Writing system configuration…"
 cat > /mnt/etc/nixos/flake.nix << FLAKE
 {
@@ -141,12 +128,12 @@ cat > /mnt/etc/nixos/flake.nix << FLAKE
           time.timeZone      = "$TIMEZONE";
           i18n.defaultLocale = "en_US.UTF-8";
 
-          # Brave Origin — fetched from GitHub during nixos-install
           programs.brave-origin.enable = true;
 
           services.xserver = {
-            enable                         = true;
-            windowManager.ratpoison.enable = true;
+            enable = true;
+            desktopManager.xfce.enable    = true;
+            displayManager.lightdm.enable = true;
           };
 
           users.users.$USERNAME = {
@@ -155,14 +142,9 @@ cat > /mnt/etc/nixos/flake.nix << FLAKE
           };
 
           environment.systemPackages = with pkgs; [
-            git curl htop xterm dejavu_fonts
+            git curl htop
+            xfce.thunar xfce.xfce4-terminal
           ];
-
-          home.file.".xinitrc".text = ''
-            #!/bin/sh
-            xsetroot -cursor_name left_ptr
-            exec ratpoison
-          '';
 
           nix.settings.experimental-features = [ "nix-command" "flakes" ];
           system.stateVersion = "25.05";
@@ -173,7 +155,6 @@ cat > /mnt/etc/nixos/flake.nix << FLAKE
 }
 FLAKE
 
-# ── 6. Install ────────────────────────────────────────────────────────────────
 bold "[ 6/7 ] Running nixos-install (Brave Origin fetched from GitHub)…"
 nixos-install \
   --flake /mnt/etc/nixos#system \
@@ -181,7 +162,6 @@ nixos-install \
   --option substituters "https://cache.nixos.org" \
   --option trusted-public-keys "cache.nixos.org-1:6NCHdD59X431o0gWypbMrAURkbJ16ZPMQFGspcDShjY="
 
-# ── 7. Set user password ──────────────────────────────────────────────────────
 bold "[ 7/7 ] Setting password…"
 echo "$USERNAME:$PASSWORD" | nixos-enter --root /mnt -- chpasswd
 
@@ -192,6 +172,6 @@ bold "━━━━━━━━━━━━━━━━━━━━━━━━�
 echo
 echo "  reboot"
 echo
-echo "  After login → startx → Ratpoison"
-echo "  Brave Origin: C-t b"
+echo "  LightDM login screen → XFCE desktop"
+echo "  Brave Origin is in the applications menu."
 echo
